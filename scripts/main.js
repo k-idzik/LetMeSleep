@@ -1,26 +1,25 @@
-(function ()
-{
-    "use strict";
-    window.onload = init; //Call init when the window loads
+"use strict";
 
+var app = app || {};
+
+app.main = {
+    
     //Canvas
-    var canvas; //The canvas
-    var ctx; //Canvas context
+    canvas: undefined,
+    ctx: undefined,
 
     //Initialization function
-    function init()
-    {
-        canvas = document.querySelector('canvas');
+    init: function() {
+        canvas = document.querySelector("canvas");
         ctx = canvas.getContext("2d");
         
         update(); //Start the animation loop
-    }
+    },
 
-    //Update audio visualizer
-    function update()
-    {
-        canvas.width = document.body.clientWidth; //Dynamically adjust the size of the canvas
+    //Update
+    update: function() {
+        //canvas.width = document.body.clientWidth; //Dynamically adjust the size of the canvas
         requestAnimationFrame(update); //Update the animation frame 60 times a second
-
+        ctx.fillRect(0, 0, 150, 150);
     }
-}());
+};
