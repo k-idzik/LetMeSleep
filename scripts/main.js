@@ -1,25 +1,28 @@
 "use strict";
 
+//Use the existing app if it does exist, otherwise make a new object literal
 var app = app || {};
 
-app.main = {
-    
+app.main = {  
     //Canvas
     canvas: undefined,
     ctx: undefined,
+    animationID: 0,
 
     //Initialization function
     init: function() {
-        canvas = document.querySelector("canvas");
-        ctx = canvas.getContext("2d");
+        this.canvas = document.querySelector("canvas");
+        this.ctx = canvas.getContext("2d");
         
-        update(); //Start the animation loop
+        this.update(); //Start the animation loop
     },
 
     //Update
     update: function() {
-        //canvas.width = document.body.clientWidth; //Dynamically adjust the size of the canvas
-        requestAnimationFrame(update); //Update the animation frame 60 times a second
-        ctx.fillRect(0, 0, 150, 150);
+        //Update the animation frame 60 times a second, binding it to call itself
+        this.animationID = requestAnimationFrame(this.update.bind(this));
+        
+        this.ctx.fillStyle = "red";
+        this.ctx.fillRect(0, 0, 150, 150);
     }
 };
