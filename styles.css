@@ -7,7 +7,7 @@ body
 }       
 canvas
 {
-    background: black;
+    background: #87CEEB;
     display: block; /*Centering*/
     margin: auto; /*Centering*/
 }
