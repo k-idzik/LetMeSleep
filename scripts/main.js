@@ -8,12 +8,25 @@ app.main = {
     canvas: undefined,
     ctx: undefined,
     animationID: 0,
+    
+    //Pause state
     paused: false,
+    
+    //Slingshot clickpoint
+    clickpoint: {
+        xPos: 0,
+        yPos: 0,
+        radius: 10
+    },
 
     ///Initialization function
     init: function() {
         this.canvas = document.querySelector("canvas");
         this.ctx = canvas.getContext("2d");
+        
+        //Set the clickpoint coordinates
+        this.clickpoint.xPos = this.canvas.width / 2;
+        this.clickpoint.yPos = this.canvas.height - 120;
         
         this.update(); //Start the animation loop
     },
@@ -23,13 +36,17 @@ app.main = {
         //Update the animation frame 60 times a second, binding it to call itself
         this.animationID = requestAnimationFrame(this.update.bind(this));
         
-        this.ctx.fillRect(0, 0, this.canvas.height, this.canvas.width); //Clear the background
+        //Draw the background
+        this.ctx.fillStyle = "lightblue";
+        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
         
         //If the game is paused
         if (this.paused) {
             this.drawPauseScreen(this.ctx);
             return; //Skip the rest of the loop
         }
+        
+        this.slingShot(this.ctx);
     },
     
     ///This function will pause the game
@@ -68,5 +85,33 @@ app.main = {
         ctx.fillText("PAUSED", 0, 0);
         
         ctx.restore(); //Restore the canvas state to what it was before drawing the pause screen
+    },
+    
+    ///Draw and utilize the slingshot
+    slingShot: function(ctx) {
+        //Draw the slingshot
+        ctx.lineWidth = 10;
+        ctx.strokeStyle = "#8B4513";
+        ctx.beginPath();
+        ctx.moveTo(this.canvas.width / 2, this.canvas.height);
+        ctx.lineTo(this.canvas.width / 2, this.canvas.height - 70);
+        ctx.lineTo(this.canvas.width / 2.6, this.canvas.height - 120);
+        ctx.moveTo(this.canvas.width / 2, this.canvas.height - 70);
+        ctx.lineTo(this.canvas.width - (this.canvas.width / 2.6), this.canvas.height - 120);
+        ctx.stroke();
+        
+        //Draw the slingshot's curved component
+        ctx.lineWidth = 5;
+        ctx.strokeStyle = "grey";
+        ctx.beginPath();
+        ctx.moveTo(this.canvas.width / 2.6, this.canvas.height - 120);
+        ctx.quadraticCurveTo(this.canvas.width / 2, this.canvas.height - 120, this.canvas.width - (this.canvas.width / 2.6), this.canvas.height - 120);
+        ctx.stroke();
+        
+        //Draw the slingshot's click point
+        ctx.fillStyle = "dimgrey";
+        ctx.beginPath();
+        ctx.arc(this.clickpoint.xPos, this.clickpoint.yPos, this.clickpoint.radius, 0, Math.PI * 2);
+        ctx.fill();
     }
 };

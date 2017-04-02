@@ -45,3 +45,12 @@ h1
     clear: both;
     margin-top: 10px;
 }
+
+@media screen and (max-width: 1366px)
+{
+    canvas
+    {
+        height: 576px;
+        width: 324px;
+    }
+}
