@@ -20,11 +20,14 @@
 			RADIUS: 4,
 			MIN_RADIUS: 2,
 			MAX_RADIUS: 15,
-			SPEED: 5,
+			SPEED: 1,
 			ROCK_ART: rock,
 		}),
+		rockCooldown: 100,
+		rockTimer:0,
+		maxRocks: 5, //makes rocks allowed at once
 		
-		makeRocks: function(num){
+		makeRocks: function(){
 			var Rock_Draw = function(ctx){
 				//draw rock to canvas
 				ctx.save();
@@ -41,25 +44,35 @@
 				
 				ctx.restore();
 				
-				console.log("rock draw" + this.x + " " + this.y);
+				//console.log("rock draw" + this.x + " " + this.y);
 			};
 			
-			var Rock_Update = function(canvas){
+			var Rock_Update = function(canvas, rocksArray){
 				//make rock fall from the sky
-				this.y += 5;
+				this.y += this.speed;
 				
 				if(this.y > canvas.height){
-					delete this;
+					//remove from rocks array
+					for(var i =0; i < rocksArray.length; i++){
+						if(rocksArray[i] == this){
+							rocksArray.splice(i, 1);
+							break;
+						}
+					}
 				}
+			};
+			
+			var Rock_CollisionDetection = function(){
+				
 			};
 			
 			var array = [];
 			
-			for(var i=0; i< num; i++){
+			if(this.rocks.length == 0){
 				var r = {};
 				
 				r.x = Math.floor((Math.random()*this.canvas.width) + 1);
-				r.y = 10;
+				r.y = -20;
 				
 				r.radius = this.ROCK.RADIUS;
 				
@@ -69,10 +82,30 @@
 				r.update = Rock_Update;
 				
 				Object.seal(r);
-				array.push(r);
+				this.rocks.push(r);
+				this.rockTimer = 0;
 			}
-			
-			return array;
+			else if(this.rockTimer > this.rockCooldown && this.rocks.length < this.maxRocks){
+				var r = {};
+				
+				r.x = Math.floor((Math.random()*this.canvas.width) + 1);
+				r.y = -20;
+				
+				r.radius = this.ROCK.RADIUS;
+				
+				r.speed = this.ROCK.SPEED;
+				
+				r.draw = Rock_Draw;
+				r.update = Rock_Update;
+				
+				Object.seal(r);
+				this.rocks.push(r);
+				
+				this.rockTimer = 0;
+			}
+			else{
+				this.rockTimer++;
+			}
 		},
 		
 		///Initialization function
@@ -84,7 +117,7 @@
 			sloth = new Image();
 			sloth.src = "art/SleepingSloth.png";
 			
-			this.rocks = this.makeRocks(5);
+			this.makeRocks();
 			this.update(); //Start the animation loop
 		},
 		
@@ -93,20 +126,36 @@
 			//Update the animation frame 60 times a second, binding it to call itself
 			this.animationID = requestAnimationFrame(this.update.bind(this));
 			
+			this.makeRocks();
+
+			
+			
+			for(var i =0; i < this.rocks.length; i++){
+				var r = this.rocks[i];
+
+				r.update(this.canvas, this.rocks);
+			}
+			
+			this.draw();
+			
+			console.dir(this.rocks);
+		},
+		
+		//everything related to drawing should happen here
+		draw: function(){
 			this.ctx.fillStyle = '#87CEEB';
 			this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height); //Clear the background
 			
-			//draw sloth
-			
+			//draws the sloth
 			this.ctx.drawImage(sloth, 0,this.canvas.height-100, this.canvas.width, 100);
 			
 			for(var i =0; i < this.rocks.length; i++){
 				var r = this.rocks[i];
 				
 				r.draw(this.ctx);
-				r.update(this.canvas);
 			}
-			//If the game is paused
+			
+						//If the game is paused
 			if (this.paused) {
 				this.drawPauseScreen(this.ctx);
 				return; //Skip the rest of the loop
