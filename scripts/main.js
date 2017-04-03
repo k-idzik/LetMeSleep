@@ -15,6 +15,7 @@ app.main = {
     sloth: undefined,
 	slothHead: undefined,
     rockIMG: undefined,
+    bulletImg: undefined,
         
     //Pause state
     paused: false,
@@ -33,18 +34,25 @@ app.main = {
     //Rocks
     rocks: [],
     ROCK: Object.seal({
-        x:0,
-        y:-10,
-        RADIUS: 4,
+        RADIUS: 15,
         MIN_RADIUS: 2,
         MAX_RADIUS: 15,
         SPEED: 1,
-        ROCK_ART: this.rock,
+        ROCK_ART: this.rockIMG,
     }),
     rockCooldown: 100,
     rockTimer:0,
     maxRocks: 5, //Max rocks allowed at once
-
+    
+    //Bullets State
+    bullets:[],
+    BULLET: Object.seal({
+        RADIUS: 10,
+        SPEED:3,
+        MAX_BULLETS: 3, //max bullets allowed on scree
+        BULLET_ART: this.bulletImg,
+    }),
+    
 	///Makes rocks
     makeRocks: function() {
         var Rock_Draw = function(ctx) {
@@ -55,7 +63,7 @@ app.main = {
             ctx.fillStyle = "gray";
 
             ctx.beginPath();
-            ctx.arc(this.x, this.y, 10, 0, Math.PI*2);
+            ctx.arc(this.x, this.y, this.radius, 0, Math.PI*2);
             ctx.stroke();
             ctx.fill();
             ctx.closePath();
@@ -83,12 +91,6 @@ app.main = {
             }
         };
 
-        var Rock_CollisionDetection = function() {
-
-        };
-
-        var array = [];
-
         if(this.rocks.length == 0) {
             var r = {};
 
@@ -112,6 +114,7 @@ app.main = {
             r.x = Math.floor((Math.random()*this.canvas.width) + 1);
             r.y = -20;
 
+            console.log(this.ROCK.RADIUS);
             r.radius = this.ROCK.RADIUS;
 
             r.speed = this.ROCK.SPEED;
@@ -129,6 +132,64 @@ app.main = {
         }
     },
 	
+    //MAKE BULLET
+    makeBullet: function(x, y){
+        var BULLET_UPDATE = function(appRef){
+            
+            //TO BE REPLACED WITH SLING SHOT DETERMINING SPEED
+            this.x+= this.speed;
+            this.y+= this.speed;
+            //////////////////////////////////////////////////
+            
+            if(this.x < 0 || this.x > appRef.canvas.width || this.y < 0 || this.y > appRef.canvas.height){
+                for(var i =0; i < appRef.bullets.length; i++) {
+                    if(appRef.bullets[i] == this){
+                        appRef.bullets.splice(i, 1);
+                        break;
+                    }
+                }
+            }
+        };
+        
+        var BULLET_DRAW = function(ctx){
+            ctx.save();
+            
+            ctx.fillStyle = 'white';
+            ctx.strokeStyle = 'black';
+            
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, this.radius, 0, Math.PI*2);
+            ctx.stroke();
+            ctx.fill();
+            ctx.closePath();
+            
+            ctx.restore();
+        };
+        
+        var Bullet_DetectCollisions = function(appRef){
+            
+        };
+        
+        if(this.bullets < this.BULLET.MAX_BULLETS){
+            var bullet = {};
+            
+            bullet.x = x;
+            bullet.y = y;
+            
+            bullet.radius = this.BULLET.RADIUS;
+            
+            bullet.speed = this.BULLET.SPEED;
+            
+            bullet.draw = BULLET_DRAW;
+            bullet.update = BULLET_UPDATE;
+            bullet.CollisionDetection = Bullet_DetectCollisions;
+            
+            Object.seal(bullet);
+            this.bullets.push(bullet);
+        }
+        
+    },
+    
     ///Initialization function
     init: function() {
         this.canvas = document.querySelector("canvas");
@@ -174,6 +235,12 @@ app.main = {
         
         this.makeRocks();
         
+        for(var i = 0; i < this.bullets.length; i++){
+            var b = this.bullets[i];
+            
+            b.update(this);
+        }
+        
 		if(!this.gameOver){
 	        this.makeRocks();
 	        
@@ -207,6 +274,11 @@ app.main = {
             r.draw(this.ctx);
         }
 		
+        for(var i = 0; i < this.bullets.length; i++){
+            var b = this.bullets[i];
+            
+            b.draw(this.ctx);
+        }
 		//DRAW HUD
 		this.drawHUD(this.ctx);
 		
@@ -338,8 +410,10 @@ app.main = {
         //Check event type and set if the clickpoint is being used
         if (e.type == "mousedown" && clickedInsideSling(mouse.x, mouse.y, this.clickpoint))
             this.clickpoint.mouseClicked = true;
-        else if (e.type == "mouseup" && clickedInsideSling(mouse.x, mouse.y, this.clickpoint))
+        else if (e.type == "mouseup" && clickedInsideSling(mouse.x, mouse.y, this.clickpoint)){
             this.clickpoint.mouseClicked = false;
+            this.makeBullet(mouse.x, mouse.y);
+        }
     },
    
    	//When the slingshot is used
