@@ -19,15 +19,16 @@ app.main = {
     //Pause state
     paused: false,
     
-    //Slingshot clickpoint
-    clickpoint: {
-        xPos: 0,
-        yPos: 0,
-        radius: 10
-    },
-	
 	//Sloth Lives
 	slothLives: 3,
+	
+	//Slingshot clickpoint
+    clickpoint: Object.seal({
+        x: 0,
+        y: 0,
+        radius: 10,
+        mouseClicked: false
+    }),
 
     //Rocks
     rocks: [],
@@ -44,7 +45,7 @@ app.main = {
     rockTimer:0,
     maxRocks: 5, //Max rocks allowed at once
 
-    ///Makes rocks
+	///Makes rocks
     makeRocks: function() {
         var Rock_Draw = function(ctx) {
             //draw rock to canvas
@@ -127,23 +128,34 @@ app.main = {
             this.rockTimer++;
         }
     },
-
+	
     ///Initialization function
     init: function() {
         this.canvas = document.querySelector("canvas");
         this.ctx = canvas.getContext("2d");
+        
+        //Resize the canvas in code, because media queries would be too easy
+        if (window.outerHeight <= 768) {
+            this.canvas.setAttribute("height", "576");
+            this.canvas.setAttribute("width", "324px");
+        }
 
         //Set the clickpoint coordinates
-        this.clickpoint.xPos = this.canvas.width / 2;
-        this.clickpoint.yPos = this.canvas.height - 120;
+        this.clickpoint.x = this.canvas.width / 2;
+        this.clickpoint.y = this.canvas.height - 220;
+        
+        //Hook up events
+        this.canvas.onmousedown = this.clickedSlingShot.bind(this);  
+        this.canvas.onmouseup = this.clickedSlingShot.bind(this);
+        this.canvas.onmousemove = this.useSlingShot.bind(this);
         
         //get sloth Image
         this.sloth = new Image();
         this.sloth.src = "art/SleepingSloth.png";
-		
+
 		this.slothHead = new Image();
 		this.slothHead.src = "art/slothHead.png";
-
+		
         this.makeRocks();
         
         this.update(); //Start the animation loop
@@ -154,15 +166,13 @@ app.main = {
         //Update the animation frame 60 times a second, binding it to call itself
         this.animationID = requestAnimationFrame(this.update.bind(this));
 
-        //Draw the background
-        this.ctx.fillStyle = "lightblue";
-        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-        
         //If the game is paused
         if (this.paused) {
             this.drawPauseScreen(this.ctx);
             return; //Skip the rest of the loop
         }
+        
+        this.makeRocks();
         
 		if(!this.gameOver){
 	        this.makeRocks();
@@ -177,28 +187,26 @@ app.main = {
 		if(this.slothLives <=0){
 			this.gameOver = true;
 		}
-		
         this.draw();
-			
-        console.dir(this.rocks);
-        
-        this.slingShot(this.ctx);
     },
 
     ///Everything related to drawing should happen here
-    draw: function(){
+    draw: function() {
+        //Draw the background
         this.ctx.fillStyle = '#87CEEB';
-        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height); //Clear the background
-
-        //draws the sloth
-        this.ctx.drawImage(this.sloth, 0,this.canvas.height-100, this.canvas.width, 100);
-
-        for(var i =0; i < this.rocks.length; i++){
+        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height); //Redraw the background
+        
+        //Draws the sloth
+        this.ctx.drawImage(this.sloth, 0,this.canvas.height-100, this.canvas.width, 100); 
+                
+        this.drawSlingShot(this.ctx); //Draw the slingshot
+        
+        for(var i =0; i < this.rocks.length; i++) {
             var r = this.rocks[i];
 
             r.draw(this.ctx);
         }
-
+		
 		//DRAW HUD
 		this.drawHUD(this.ctx);
 		
@@ -206,14 +214,8 @@ app.main = {
 		if(this.gameOver){
 			this.drawGameOverScreen(this.ctx);
 		}
-		
-        //If the game is paused
-        if (this.paused) {
-            this.drawPauseScreen(this.ctx);
-            return; //Skip the rest of the loop
-        }
     },
-	
+
     ///This function will pause the game
     pauseGame: function() {
         this.paused = true;      
@@ -221,7 +223,6 @@ app.main = {
         this.update(); //Updates the screen once so that the pause screen is shown
     },
 
-	
     ///This function will resume the game after pause
     resumeGame: function() {
         cancelAnimationFrame(this.animationID); //Stop the animation loop in case it's running
@@ -293,31 +294,62 @@ app.main = {
 
         ctx.restore(); //Restore the canvas state to what it was before drawing the pause screen
 	},
-    ///Draw and utilize the slingshot
-    slingShot: function(ctx) {
+    
+	///Draw the slingshot
+    drawSlingShot: function(ctx) {
+        ctx.save(); //Save the canvas state
+        
+        //Set the line cap type
+        ctx.lineCap = "round";
+        
         //Draw the slingshot
         ctx.lineWidth = 10;
         ctx.strokeStyle = "#8B4513";
         ctx.beginPath();
-        ctx.moveTo(this.canvas.width / 2, this.canvas.height);
-        ctx.lineTo(this.canvas.width / 2, this.canvas.height - 70);
-        ctx.lineTo(this.canvas.width / 2.6, this.canvas.height - 120);
-        ctx.moveTo(this.canvas.width / 2, this.canvas.height - 70);
-        ctx.lineTo(this.canvas.width - (this.canvas.width / 2.6), this.canvas.height - 120);
+        ctx.moveTo(this.canvas.width / 2, this.canvas.height - 100);
+        ctx.lineTo(this.canvas.width / 2, this.canvas.height - 170);
+        ctx.lineTo(this.canvas.width / 2.6, this.canvas.height - 220);
+        ctx.moveTo(this.canvas.width / 2, this.canvas.height - 170);
+        ctx.lineTo(this.canvas.width - (this.canvas.width / 2.6), this.canvas.height - 220);
         ctx.stroke();
         
         //Draw the slingshot's curved component
         ctx.lineWidth = 5;
         ctx.strokeStyle = "grey";
         ctx.beginPath();
-        ctx.moveTo(this.canvas.width / 2.6, this.canvas.height - 120);
-        ctx.quadraticCurveTo(this.canvas.width / 2, this.canvas.height - 120, this.canvas.width - (this.canvas.width / 2.6), this.canvas.height - 120);
+        ctx.moveTo(this.canvas.width / 2.6, this.canvas.height - 220);
+        ctx.lineTo(this.clickpoint.x, this.clickpoint.y);
+        ctx.lineTo(this.canvas.width - (this.canvas.width / 2.6), this.canvas.height - 220);
         ctx.stroke();
         
         //Draw the slingshot's click point
         ctx.fillStyle = "dimgrey";
         ctx.beginPath();
-        ctx.arc(this.clickpoint.xPos, this.clickpoint.yPos, this.clickpoint.radius, 0, Math.PI * 2);
+        ctx.arc(this.clickpoint.x, this.clickpoint.y, this.clickpoint.radius, 0, Math.PI * 2);
         ctx.fill();
-    }
+        
+        ctx.restore(); //Restore the canvas state
+    },
+   
+   	///When the slingshot is clicked on
+   	clickedSlingShot: function(e) {
+   	    var mouse = getMouse(e); //Get the position of the mouse on the canvas
+
+        //Check event type and set if the clickpoint is being used
+        if (e.type == "mousedown" && clickedInsideSling(mouse.x, mouse.y, this.clickpoint))
+            this.clickpoint.mouseClicked = true;
+        else if (e.type == "mouseup" && clickedInsideSling(mouse.x, mouse.y, this.clickpoint))
+            this.clickpoint.mouseClicked = false;
+    },
+   
+   	//When the slingshot is used
+   	useSlingShot: function(e) {
+   	    //If the mouse if being clicked, allow the slingshot to be used
+   	    if (this.clickpoint.mouseClicked) {
+   	        var mouse = getMouse(e); //Get the position of the mouse on the canvas
+   	    
+   	        this.clickpoint.x = mouse.x;
+   	        this.clickpoint.y = mouse.y;
+   	    }
+   	}
 };
