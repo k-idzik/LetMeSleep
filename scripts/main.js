@@ -3,21 +3,20 @@
 //Use the existing app if it does exist, otherwise make a new object literal
 var app = app || {};
 
-app.main = {  
+app.main = {
     //Canvas
     canvas: undefined,
     ctx: undefined,
     animationID: 0,
     paused: false,
 	gameOver: false,
+    score: 0,
     
     //Images
     sloth: undefined,
 	slothHead: undefined,
     rockIMG: undefined,
-        
-    //Pause state
-    paused: false,
+    bulletImg: undefined,
     
 	//Sloth Lives
 	slothLives: 3,
@@ -34,19 +33,27 @@ app.main = {
 
     //Rocks
     rocks: [],
-    ROCK: Object.seal({
-        x:0,
-        y:-10,
-        RADIUS: 4,
+    ROCK: Object.freeze({
+        RADIUS: 15,
         MIN_RADIUS: 2,
         MAX_RADIUS: 15,
         SPEED: 1,
-        ROCK_ART: this.rock,
+        VALUE: 5,
+        ROCK_ART: this.rockIMG,
     }),
     rockCooldown: 100,
     rockTimer:0,
     maxRocks: 5, //Max rocks allowed at once
-
+    
+    //Bullets State
+    bullets:[],
+    BULLET: Object.freeze({
+        RADIUS: 10,
+        SPEED:3,
+        MAX_BULLETS: 3, //max bullets allowed on scree
+        BULLET_ART: this.bulletImg,
+    }),
+    
 	///Makes rocks
     makeRocks: function() {
         var Rock_Draw = function(ctx) {
@@ -57,7 +64,7 @@ app.main = {
             ctx.fillStyle = "gray";
 
             ctx.beginPath();
-            ctx.arc(this.x, this.y, 10, 0, Math.PI*2);
+            ctx.arc(this.x, this.y, this.radius, 0, Math.PI*2);
             ctx.stroke();
             ctx.fill();
             ctx.closePath();
@@ -85,12 +92,6 @@ app.main = {
             }
         };
 
-        var Rock_CollisionDetection = function() {
-
-        };
-
-        var array = [];
-
         if(this.rocks.length == 0) {
             var r = {};
 
@@ -114,9 +115,11 @@ app.main = {
             r.x = Math.floor((Math.random()*this.canvas.width) + 1);
             r.y = -20;
 
+            console.log(this.ROCK.RADIUS);
             r.radius = this.ROCK.RADIUS;
 
             r.speed = this.ROCK.SPEED;
+            r.value = this.ROCK.VALUE;
 
             r.draw = Rock_Draw;
             r.update = Rock_Update;
@@ -131,6 +134,83 @@ app.main = {
         }
     },
 	
+    //MAKE BULLET
+    makeBullet: function(x, y){
+        var BULLET_UPDATE = function(appRef){
+            
+            //TO BE REPLACED WITH SLING SHOT DETERMINING SPEED
+            //this.x+= this.speed;
+            this.y-= this.speed;
+            //////////////////////////////////////////////////
+            
+            this.CollisionDetection(appRef);
+            
+            if(this.x < 0 || this.x > appRef.canvas.width || this.y < 0 || this.y > appRef.canvas.height){
+                for(var i =0; i < appRef.bullets.length; i++) {
+                    if(appRef.bullets[i] == this){
+                        appRef.bullets.splice(i, 1);
+                        break;
+                    }
+                }
+            }
+        };
+        
+        var BULLET_DRAW = function(ctx){
+            ctx.save();
+            
+            ctx.fillStyle = 'white';
+            ctx.strokeStyle = 'black';
+            
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, this.radius, 0, Math.PI*2);
+            ctx.stroke();
+            ctx.fill();
+            ctx.closePath();
+            
+            ctx.restore();
+        };
+        
+        var Bullet_DetectCollisions = function(appRef){
+            for(var i = 0; i < appRef.rocks.length; i++){
+                var dist = Math.sqrt(Math.pow((appRef.rocks[i].x - this.x),2) + Math.pow((appRef.rocks[i].y - this.y),2));
+                
+                if(dist < (this.radius + appRef.rocks[i].radius)){
+                    //Bullet is colliding with rock
+                    
+                    //remove from rocks array
+                    appRef.rocks.splice(i, 1);
+                    for(var j =0; j < appRef.bullets.length; j++) {
+                        if(appRef.bullets[j] == this){
+                            appRef.bullets.splice(j, 1);
+                            delete this;
+                            break;
+                        }
+                    }
+                }
+            }
+        };
+        
+        if(this.bullets.length < this.BULLET.MAX_BULLETS){
+            var bullet = {};
+            
+            bullet.x = x;
+            bullet.y = y;
+            
+            bullet.radius = this.BULLET.RADIUS;
+            
+            bullet.speed = this.BULLET.SPEED;
+            
+            bullet.draw = BULLET_DRAW;
+            bullet.update = BULLET_UPDATE;
+            bullet.CollisionDetection = Bullet_DetectCollisions;
+            
+            Object.seal(bullet);
+            this.bullets.push(bullet);
+            console.log("bullet created");
+        }
+        
+    },
+    
     ///Initialization function
     init: function() {
         this.canvas = document.querySelector("canvas");
@@ -176,6 +256,12 @@ app.main = {
         
         this.makeRocks();
         
+        for(var i = 0; i < this.bullets.length; i++){
+            var b = this.bullets[i];
+            
+            b.update(this);
+        }
+        
 		if(!this.gameOver){
 	        this.makeRocks();
 	        
@@ -209,6 +295,11 @@ app.main = {
             r.draw(this.ctx);
         }
 		
+        for(var i = 0; i < this.bullets.length; i++){
+            var b = this.bullets[i];
+            
+            b.draw(this.ctx);
+        }
 		//DRAW HUD
 		this.drawHUD(this.ctx);
 		
@@ -344,6 +435,7 @@ app.main = {
                 this.clickpoint.mouseClicked = true;
             else if (e.type == "mouseup") {
                 this.clickpoint.mouseClicked = false; //The mouse is not being clicked
+                this.makeBullet(this.clickpoint.x, this.clickpoint.y);
                 
                 //If the current point is not close to the default point
                 if (Victor(this.clickpoint.defaultX, this.clickpoint.defaultY) != Victor(this.clickpoint.x, this.clickpoint.y)) {
