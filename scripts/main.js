@@ -101,6 +101,7 @@ app.main = {
             r.radius = this.ROCK.RADIUS;
 
             r.speed = this.ROCK.SPEED;
+            r.value = this.ROCK.VALUE;
 
             r.draw = Rock_Draw;
             r.update = Rock_Update;
@@ -176,6 +177,9 @@ app.main = {
                 
                 if(dist < (this.radius + appRef.rocks[i].radius)){
                     //Bullet is colliding with rock
+                    console.dir(appRef);
+                    console.log("Score: " + appRef.rocks[i].value);
+                    appRef.score += appRef.rocks[i].value;
                     
                     //remove from rocks array
                     appRef.rocks.splice(i, 1);
@@ -254,13 +258,7 @@ app.main = {
             return; //Skip the rest of the loop
         }
         
-        this.makeRocks();
         
-        for(var i = 0; i < this.bullets.length; i++){
-            var b = this.bullets[i];
-            
-            b.update(this);
-        }
         
 		if(!this.gameOver){
 	        this.makeRocks();
@@ -270,6 +268,12 @@ app.main = {
 	
         	    r.update(this);
         	}
+         
+            for(var i = 0; i < this.bullets.length; i++){
+                var b = this.bullets[i];
+                
+                b.update(this);
+            }
 		}
 		
 		if(this.slothLives <=0){
@@ -355,6 +359,7 @@ app.main = {
 	//draws HUD
 	drawHUD: function(ctx){
 		ctx.save();
+        //DRAW LIVES
 		ctx.textAlign = "left";
         ctx.textBaseline = "top";
 		ctx.font = "24pt Open Sans";
@@ -364,6 +369,10 @@ app.main = {
 		for(var s =0; s< this.slothLives; s++){
 			ctx.drawImage(this.slothHead,(s*50)+100,0, 50,50);
 		}
+        
+        //DRAW SCORE
+        ctx.textAlign = "right";
+        ctx.fillText("Score: " + this.score,this.canvas.width, 0);
 		ctx.restore();
 	},
 	
