@@ -9,10 +9,12 @@ app.main = {
     ctx: undefined,
     animationID: 0,
     paused: false,
+	gameOver: false,
     
     //Images
     sloth: undefined,
-    rock: undefined,
+	slothHead: undefined,
+    rockIMG: undefined,
         
     //Pause state
     paused: false,
@@ -23,6 +25,9 @@ app.main = {
         yPos: 0,
         radius: 10
     },
+	
+	//Sloth Lives
+	slothLives: 3,
 
     //Rocks
     rocks: [],
@@ -60,15 +65,17 @@ app.main = {
             //console.log("rock draw" + this.x + " " + this.y);
         };
 
-        var Rock_Update = function(canvas, rocksArray) {
+        var Rock_Update = function(appRef) {
             //make rock fall from the sky
             this.y += this.speed;
 
-            if(this.y > canvas.height){
+			//rock has hit sloth
+            if(this.y > appRef.canvas.height-100){
                 //remove from rocks array
-                for(var i =0; i < rocksArray.length; i++) {
-                    if(rocksArray[i] == this){
-                        rocksArray.splice(i, 1);
+                for(var i =0; i < appRef.rocks.length; i++) {
+                    if(appRef.rocks[i] == this){
+                        appRef.rocks.splice(i, 1);
+						appRef.slothLives--;
                         break;
                     }
                 }
@@ -133,6 +140,9 @@ app.main = {
         //get sloth Image
         this.sloth = new Image();
         this.sloth.src = "art/SleepingSloth.png";
+		
+		this.slothHead = new Image();
+		this.slothHead.src = "art/slothHead.png";
 
         this.makeRocks();
         
@@ -154,14 +164,20 @@ app.main = {
             return; //Skip the rest of the loop
         }
         
-        this.makeRocks();
-        
-        for(var i =0; i < this.rocks.length; i++) {
-            var r = this.rocks[i];
-
-            r.update(this.canvas, this.rocks);
-        }
-			
+		if(!this.gameOver){
+	        this.makeRocks();
+	        
+	        for(var i =0; i < this.rocks.length; i++) {
+	            var r = this.rocks[i];
+	
+        	    r.update(this);
+        	}
+		}
+		
+		if(this.slothLives <=0){
+			this.gameOver = true;
+		}
+		
         this.draw();
 			
         console.dir(this.rocks);
@@ -183,13 +199,21 @@ app.main = {
             r.draw(this.ctx);
         }
 
-                    //If the game is paused
+		//DRAW HUD
+		this.drawHUD(this.ctx);
+		
+		//if game is over
+		if(this.gameOver){
+			this.drawGameOverScreen(this.ctx);
+		}
+		
+        //If the game is paused
         if (this.paused) {
             this.drawPauseScreen(this.ctx);
             return; //Skip the rest of the loop
         }
     },
-
+	
     ///This function will pause the game
     pauseGame: function() {
         this.paused = true;      
@@ -197,6 +221,7 @@ app.main = {
         this.update(); //Updates the screen once so that the pause screen is shown
     },
 
+	
     ///This function will resume the game after pause
     resumeGame: function() {
         cancelAnimationFrame(this.animationID); //Stop the animation loop in case it's running
@@ -204,6 +229,11 @@ app.main = {
         this.update(); //Restart the loop
     },
 
+	//RESET GAME METHOD
+	resetGame: function(){
+		
+	},
+	
     ///This function will draw the pause screen
     drawPauseScreen: function(ctx) {
         ctx.save(); //Save the current state of the canvas
@@ -228,6 +258,41 @@ app.main = {
         ctx.restore(); //Restore the canvas state to what it was before drawing the pause screen
     },
 
+	//draws HUD
+	drawHUD: function(ctx){
+		ctx.save();
+		ctx.textAlign = "left";
+        ctx.textBaseline = "top";
+		ctx.font = "24pt Open Sans";
+		ctx.fillStyle = 'black';
+		ctx.fillText("LIVES:" ,0,0);
+		
+		for(var s =0; s< this.slothLives; s++){
+			ctx.drawImage(this.slothHead,(s*50)+100,0, 50,50);
+		}
+		ctx.restore();
+	},
+	
+	drawGameOverScreen: function(ctx){
+		ctx.save(); //Save the current state of the canvas
+
+        //Obscure the game
+        ctx.globalAlpha = .5;
+        ctx.fillStyle = "grey";
+        ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+        //Align the text on the screen
+		ctx.globalAlpha = 1;
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+
+        //Draw text
+        ctx.font = "40pt Open Sans";
+        ctx.fillStyle = "white";
+        ctx.fillText("GAME OVER", this.canvas.width/2, this.canvas.height/2-200);
+
+        ctx.restore(); //Restore the canvas state to what it was before drawing the pause screen
+	},
     ///Draw and utilize the slingshot
     slingShot: function(ctx) {
         //Draw the slingshot
