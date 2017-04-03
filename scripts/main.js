@@ -24,6 +24,8 @@ app.main = {
 	
 	//Slingshot clickpoint
     clickpoint: Object.seal({
+        defaultX: 0,
+        defaultY: 0,
         x: 0,
         y: 0,
         radius: 10,
@@ -141,8 +143,8 @@ app.main = {
         }
 
         //Set the clickpoint coordinates
-        this.clickpoint.x = this.canvas.width / 2;
-        this.clickpoint.y = this.canvas.height - 220;
+        this.clickpoint.defaultX = this.clickpoint.x = this.canvas.width / 2;
+        this.clickpoint.defaultY = this.clickpoint.y = this.canvas.height - 220;      
         
         //Hook up events
         this.canvas.onmousedown = this.clickedSlingShot.bind(this);  
@@ -333,23 +335,39 @@ app.main = {
    
    	///When the slingshot is clicked on
    	clickedSlingShot: function(e) {
-   	    var mouse = getMouse(e); //Get the position of the mouse on the canvas
+        //If the game is not paused
+        if (!this.paused) {
+            var mouse = getMouse(e); //Get the position of the mouse on the canvas
 
-        //Check event type and set if the clickpoint is being used
-        if (e.type == "mousedown" && clickedInsideSling(mouse.x, mouse.y, this.clickpoint))
-            this.clickpoint.mouseClicked = true;
-        else if (e.type == "mouseup" && clickedInsideSling(mouse.x, mouse.y, this.clickpoint))
-            this.clickpoint.mouseClicked = false;
+            //Check event type and set if the clickpoint is being used
+            if (e.type == "mousedown" && clickedInsideSling(mouse.x, mouse.y, this.clickpoint))
+                this.clickpoint.mouseClicked = true;
+            else if (e.type == "mouseup") {
+                this.clickpoint.mouseClicked = false; //The mouse is not being clicked
+                
+                //If the current point is not close to the default point
+                if (Victor(this.clickpoint.defaultX, this.clickpoint.defaultY) != Victor(this.clickpoint.x, this.clickpoint.y)) {
+                    console.log("adgasg");
+                }
+            }
+        }
     },
    
    	//When the slingshot is used
    	useSlingShot: function(e) {
-   	    //If the mouse if being clicked, allow the slingshot to be used
-   	    if (this.clickpoint.mouseClicked) {
-   	        var mouse = getMouse(e); //Get the position of the mouse on the canvas
-   	    
-   	        this.clickpoint.x = mouse.x;
-   	        this.clickpoint.y = mouse.y;
+   	    //If the mouse if being clicked and the game is not paused, allow the slingshot to be used
+   	    if (this.clickpoint.mouseClicked && !this.paused) {
+            //Make vectors to limit the distance the slingshot can move
+            var defaultPoint = new Victor(this.clickpoint.defaultX, this.clickpoint.defaultY);
+            var movedPoint = new Victor(this.clickpoint.x, this.clickpoint.y);
+            
+            //Limit the distance the slingshot can move
+            if (defaultPoint.distance(movedPoint) < 100) {
+                var mouse = getMouse(e); //Get the position of the mouse on the canvas
+
+                this.clickpoint.x = mouse.x;
+                this.clickpoint.y = mouse.y;
+            }
    	    }
    	}
 };
