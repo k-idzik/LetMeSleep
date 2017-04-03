@@ -28,7 +28,8 @@ app.main = {
         x: 0,
         y: 0,
         radius: 10,
-        mouseClicked: false
+        mouseClicked: false,
+        previousMouseClicked: false
     }),
 
     //Rocks
@@ -71,8 +72,6 @@ app.main = {
 
 
             ctx.restore();
-
-            //console.log("rock draw" + this.x + " " + this.y);
         };
 
         var Rock_Update = function(appRef) {
@@ -116,7 +115,6 @@ app.main = {
             r.x = Math.floor((Math.random()*this.canvas.width) + 1);
             r.y = -20;
 
-            console.log(this.ROCK.RADIUS);
             r.radius = this.ROCK.RADIUS;
 
             r.speed = this.ROCK.SPEED;
@@ -136,12 +134,16 @@ app.main = {
     },
 	
     //MAKE BULLET
-    makeBullet: function(x, y){
-        var BULLET_UPDATE = function(appRef){
+    makeBullet: function(x, y, direction) {
+        var BULLET_UPDATE = function(appRef) {
+            direction.normalize();
+            
+            this.x -= direction.x * this.speed;
+            this.y -= direction.y * this.speed;
             
             //TO BE REPLACED WITH SLING SHOT DETERMINING SPEED
-            //this.x+= this.speed;
-            this.y-= this.speed;
+            //this.x += this.speed;
+            //this.y -= this.speed;
             //////////////////////////////////////////////////
             
             this.CollisionDetection(appRef);
@@ -156,7 +158,7 @@ app.main = {
             }
         };
         
-        var BULLET_DRAW = function(ctx){
+        var BULLET_DRAW = function(ctx) {
             ctx.save();
             
             ctx.fillStyle = 'white';
@@ -171,11 +173,11 @@ app.main = {
             ctx.restore();
         };
         
-        var Bullet_DetectCollisions = function(appRef){
-            for(var i = 0; i < appRef.rocks.length; i++){
+        var Bullet_DetectCollisions = function(appRef) {
+            for(var i = 0; i < appRef.rocks.length; i++) {
                 var dist = Math.sqrt(Math.pow((appRef.rocks[i].x - this.x),2) + Math.pow((appRef.rocks[i].y - this.y),2));
                 
-                if(dist < (this.radius + appRef.rocks[i].radius)){
+                if(dist < (this.radius + appRef.rocks[i].radius)) {
                     //Bullet is colliding with rock
                     console.dir(appRef);
                     console.log("Score: " + appRef.rocks[i].value);
@@ -194,7 +196,7 @@ app.main = {
             }
         };
         
-        if(this.bullets.length < this.BULLET.MAX_BULLETS){
+        if(this.bullets.length < this.BULLET.MAX_BULLETS) {
             var bullet = {};
             
             bullet.x = x;
@@ -210,7 +212,6 @@ app.main = {
             
             Object.seal(bullet);
             this.bullets.push(bullet);
-            console.log("bullet created");
         }
         
     },
@@ -233,7 +234,7 @@ app.main = {
         //Hook up events
         this.canvas.onmousedown = this.clickedSlingShot.bind(this);  
         this.canvas.onmouseup = this.clickedSlingShot.bind(this);
-        this.canvas.onmousemove = this.useSlingShot.bind(this);
+        this.canvas.onmousemove = this.moveSlingShot.bind(this);
         
         //get sloth Image
         this.sloth = new Image();
@@ -260,7 +261,7 @@ app.main = {
         
         
         
-		if(!this.gameOver){
+		if(!this.gameOver) {
 	        this.makeRocks();
 	        
 	        for(var i =0; i < this.rocks.length; i++) {
@@ -276,9 +277,12 @@ app.main = {
             }
 		}
 		
-		if(this.slothLives <=0){
+		if(this.slothLives <=0) {
 			this.gameOver = true;
 		}
+        
+        this.useSlingShot();
+        
         this.draw();
     },
 
@@ -438,24 +442,21 @@ app.main = {
         //If the game is not paused
         if (!this.paused) {
             var mouse = getMouse(e); //Get the position of the mouse on the canvas
-
+            var defaultPoint = new Victor(this.clickpoint.defaultX, this.clickpoint.defaultY);
+            var movedPoint = new Victor(this.clickpoint.x, this.clickpoint.y);
+            
             //Check event type and set if the clickpoint is being used
-            if (e.type == "mousedown" && clickedInsideSling(mouse.x, mouse.y, this.clickpoint))
+            if (e.type == "mousedown" && clickedInsideSling(mouse.x, mouse.y, this.clickpoint) && defaultPoint.distance(movedPoint) < 1)
                 this.clickpoint.mouseClicked = true;
             else if (e.type == "mouseup") {
                 this.clickpoint.mouseClicked = false; //The mouse is not being clicked
-                this.makeBullet(this.clickpoint.x, this.clickpoint.y);
-                
-                //If the current point is not close to the default point
-                if (Victor(this.clickpoint.defaultX, this.clickpoint.defaultY) != Victor(this.clickpoint.x, this.clickpoint.y)) {
-                    console.log("adgasg");
-                }
+                this.clickpoint.previousMouseClicked = true; //The mouse was previously clicked
             }
         }
     },
    
-   	//When the slingshot is used
-   	useSlingShot: function(e) {
+   	//When the slingshot is moved
+   	moveSlingShot: function(e) {
    	    //If the mouse if being clicked and the game is not paused, allow the slingshot to be used
    	    if (this.clickpoint.mouseClicked && !this.paused) {
             //Make vectors to limit the distance the slingshot can move
@@ -470,5 +471,25 @@ app.main = {
                 this.clickpoint.y = mouse.y;
             }
    	    }
+   	},
+    
+    //When the slingshot is used
+   	useSlingShot: function() {
+        if (!this.clickpoint.mouseClicked) {
+            var defaultPoint = new Victor(this.clickpoint.defaultX, this.clickpoint.defaultY);
+            var movedPoint = new Victor(this.clickpoint.x, this.clickpoint.y);
+            
+            //If the current point is not close to the default point, elastify the slingshot back
+            if (defaultPoint.distance(movedPoint) > 1) {
+                this.clickpoint.x -= (movedPoint.x - defaultPoint.x) / 3;
+                this.clickpoint.y -= (movedPoint.y - defaultPoint.y) / 3;     
+            }
+            
+            //Fire a bullet
+            if (this.clickpoint.previousMouseClicked) {
+                this.makeBullet(this.clickpoint.x, this.clickpoint.y, Victor(movedPoint.x - defaultPoint.x, movedPoint.y - defaultPoint.y)); //Make a bullet
+                this.clickpoint.previousMouseClicked = false;
+            }
+        }
    	}
 };
