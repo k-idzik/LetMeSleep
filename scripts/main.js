@@ -238,14 +238,14 @@ app.main = {
             this.canvas.setAttribute("width", "324px");
         }
 
-		this.screenState = this.SCREEN.GAME;
+		this.screenState = this.SCREEN.MAIN;
 		
         //Set the clickpoint coordinates
         this.clickpoint.defaultX = this.clickpoint.x = this.canvas.width / 2;
         this.clickpoint.defaultY = this.clickpoint.y = this.canvas.height - 220;      
         
         //Hook up events
-        this.canvas.onmousedown = this.clickedSlingShot.bind(this);  
+        this.canvas.onmousedown = this.mainMenuClicked.bind(this);  
         this.canvas.onmouseup = this.clickedSlingShot.bind(this);
         this.canvas.onmousemove = this.moveSlingShot.bind(this);
         
@@ -269,6 +269,9 @@ app.main = {
 		switch(this.screenState){
 				case this.SCREEN.MAIN:
 				//MAIN MENU Update LOOP
+				
+				//SEE IF PLAYER SELECTED START BUTTON
+				
 				break;
 				
 			case this.SCREEN.INSTRUCTION:
@@ -325,6 +328,7 @@ app.main = {
 		switch(this.screenState){
 			case this.SCREEN.MAIN:
 				//MAIN MENU DRAW LOOP
+				this.drawTitleScreen(this.ctx);
 				break;
 				
 			case this.SCREEN.INSTRUCTION:
@@ -335,7 +339,8 @@ app.main = {
 				//GAME DRAW LOOP
 				//Draws the sloth
         		this.ctx.drawImage(this.sloth, 0,this.canvas.height-100, this.canvas.width, 100); 
-        		        
+        		
+				//console.dir(this.ctx)
         		this.drawSlingShot(this.ctx); //Draw the slingshot
         		
         		for(var i =0; i < this.rocks.length; i++) {
@@ -379,7 +384,7 @@ app.main = {
 			case this.SCREEN.GAMEOVER:
 				//GAME OVER DRAW LOOP
 				this.ctx.drawImage(this.sloth, 0,this.canvas.height-100, this.canvas.width, 100); 
-        		        
+        		  
         		this.drawSlingShot(this.ctx); //Draw the slingshot
         		
         		for(var i =0; i < this.rocks.length; i++) {
@@ -402,20 +407,83 @@ app.main = {
 
     ///This function will pause the game
     pauseGame: function() {
-        this.screenState = this.SCREEN.PAUSED;      
-        cancelAnimationFrame(this.animationID); //Stop the animation loop
-        this.update(); //Updates the screen once so that the pause screen is shown
+		if(this.screenState == this.SCREEN.GAME){
+        	this.screenState = this.SCREEN.PAUSED;      
+        	cancelAnimationFrame(this.animationID); //Stop the animation loop
+        	this.update(); //Updates the screen once so that the pause screen is shown
+		}
     },
 
     ///This function will resume the game after pause
     resumeGame: function() {
-        cancelAnimationFrame(this.animationID); //Stop the animation loop in case it's running
-        this.screenState = this.SCREEN.GAME;
-        this.update(); //Restart the loop
+		if(this.screenState == this.SCREEN.PAUSED){
+        	cancelAnimationFrame(this.animationID); //Stop the animation loop in case it's running
+        	this.screenState = this.SCREEN.GAME;
+        	this.update(); //Restart the loop
+		}
     },
 
+	//START GAME METHOD
+	startGame: function(){
+		
+		
+		//Set the clickpoint coordinates
+        this.clickpoint.defaultX = this.clickpoint.x = this.canvas.width / 2;
+        this.clickpoint.defaultY = this.clickpoint.y = this.canvas.height - 220;      
+        
+        //Hook up events
+        this.canvas.onmousedown = this.clickedSlingShot.bind(this);  
+        this.canvas.onmouseup = this.clickedSlingShot.bind(this);
+        this.canvas.onmousemove = this.moveSlingShot.bind(this);
+		
+		this.screenState = this.SCREEN.GAME;
+	},
 	//RESET GAME METHOD
 	resetGame: function(){
+		
+	},
+	
+	drawTitleScreen: function(ctx){
+		ctx.save();	
+		
+		//Draw Sleeping Sloth
+		this.ctx.drawImage(this.sloth, 0, 50, this.canvas.width, 100); 
+		
+		//Draw TITLE
+		ctx.textAlign = "center";
+        ctx.textBaseline = "center";
+		ctx.font = "40pt Open Sans";
+		ctx.fillStyle = 'black';
+		ctx.fillText("LET ME SLEEP!" , this.canvas.width/2, 200);
+		
+		//DRAW START GAME BUTTON
+		ctx.fillStyle = "#C2976B";
+		ctx.stroke = "#BF9469";
+		ctx.fillRect((this.canvas.width /2) - 100, 300, 200, 50);
+		ctx.strokeRect((this.canvas.width /2) - 100, 300, 200, 50)
+		ctx.fillStyle = 'black';
+		ctx.font = "20pt Open Sans";
+		ctx.fillText("START GAME", this.canvas.width/2, 330);
+		
+		//DRAW HOW TO PLAY GAME BUTTON
+		ctx.fillStyle = "#C2976B";
+		ctx.stroke = "#BF9469";
+		ctx.fillRect((this.canvas.width /2) - 100, 400, 200, 50);
+		ctx.strokeRect((this.canvas.width /2) - 100, 400, 200, 50)
+		ctx.fillStyle = 'black';
+		ctx.font = "20pt Open Sans";
+		ctx.fillText("INSTRUCTIONS", this.canvas.width/2, 430);
+		
+		//DRAW HOW TO PLAY GAME BUTTON
+		ctx.fillStyle = "#C2976B";
+		ctx.stroke = "#BF9469";
+		ctx.fillRect((this.canvas.width /2) - 100, 500, 200, 50);
+		ctx.strokeRect((this.canvas.width /2) - 100, 500, 200, 50)
+		ctx.fillStyle = 'black';
+		ctx.font = "20pt Open Sans";
+		ctx.fillText("CREDITS", this.canvas.width/2, 530);
+		
+		this.ctx.drawImage(this.sloth, 0,this.canvas.height-200, this.canvas.width, 100); 
 		
 	},
 	
@@ -500,6 +568,7 @@ app.main = {
         ctx.lineTo(this.canvas.width / 2.6, this.canvas.height - 220);
         ctx.moveTo(this.canvas.width / 2, this.canvas.height - 170);
         ctx.lineTo(this.canvas.width - (this.canvas.width / 2.6), this.canvas.height - 220);
+		console.dir(ctx);
         ctx.stroke();
         
         //Draw the slingshot's curved component
@@ -520,10 +589,21 @@ app.main = {
         ctx.restore(); //Restore the canvas state
     },
    
+	//MAIN MENU CLICKED FUNCTION
+	mainMenuClicked: function(e){
+		var mouse = getMouse(e);
+		//debugger;
+		var insideStart = clickedInsideStart(mouse.x, mouse.y, this.canvas.width);
+		if(e.type == "mousedown"  && insideStart){
+		    console.log("Start clicked");
+			this.startGame();
+		}
+	},
+		   
    	///When the slingshot is clicked on
    	clickedSlingShot: function(e) {
         //If the game is not paused
-        if (!this.paused) {
+        if (!this.screenState != this.SCREEN.PAUSED  ) {
             var mouse = getMouse(e); //Get the position of the mouse on the canvas
             var defaultPoint = new Victor(this.clickpoint.defaultX, this.clickpoint.defaultY);
             var movedPoint = new Victor(this.clickpoint.x, this.clickpoint.y);
