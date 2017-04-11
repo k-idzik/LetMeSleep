@@ -21,6 +21,17 @@ app.main = {
 	//Sloth Lives
 	slothLives: 3,
 	
+	//SCREEN STATE
+	SCREEN: Object.freeze({
+		MAIN: 0,
+		INSTRUCTION: 1,
+		GAME: 2,
+		PAUSED: 3,
+		GAMEOVER: 4,
+	}),
+	
+	screenState: 0, //will hold the current screen state of the game
+	
 	//Slingshot clickpoint
     clickpoint: Object.seal({
         defaultX: 0,
@@ -227,6 +238,8 @@ app.main = {
             this.canvas.setAttribute("width", "324px");
         }
 
+		this.screenState = this.SCREEN.GAME;
+		
         //Set the clickpoint coordinates
         this.clickpoint.defaultX = this.clickpoint.x = this.canvas.width / 2;
         this.clickpoint.defaultY = this.clickpoint.y = this.canvas.height - 220;      
@@ -254,14 +267,14 @@ app.main = {
         this.animationID = requestAnimationFrame(this.update.bind(this));
 
         //If the game is paused
-        if (this.paused) {
+        if (this.screenState == this.SCREEN.PAUSED) {
             this.drawPauseScreen(this.ctx);
             return; //Skip the rest of the loop
         }
         
         
         
-		if(!this.gameOver) {
+		if(this.screenState != this.SCREEN.GAMEOVER) {
 	        this.makeRocks();
 	        
 	        for(var i =0; i < this.rocks.length; i++) {
@@ -275,13 +288,15 @@ app.main = {
                 
                 b.update(this);
             }
+			
+			this.useSlingShot();
 		}
 		
 		if(this.slothLives <=0) {
-			this.gameOver = true;
+			this.screenState = this.SCREEN.GAMEOVER;
 		}
         
-        this.useSlingShot();
+        
         
         this.draw();
     },
@@ -291,35 +306,85 @@ app.main = {
         //Draw the background
         this.ctx.fillStyle = '#87CEEB';
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height); //Redraw the background
-        
-        //Draws the sloth
-        this.ctx.drawImage(this.sloth, 0,this.canvas.height-100, this.canvas.width, 100); 
-                
-        this.drawSlingShot(this.ctx); //Draw the slingshot
-        
-        for(var i =0; i < this.rocks.length; i++) {
-            var r = this.rocks[i];
-
-            r.draw(this.ctx);
-        }
+		switch(this.screenState){
+			case this.SCREEN.MAIN:
+				//MAIN MENU DRAW LOOP
+				break;
+				
+			case this.SCREEN.INSTRUCTION:
+				//Instruction screen DRAW LOOP
+				break;
+				
+			case this.SCREEN.GAME:
+				//GAME DRAW LOOP
+				//Draws the sloth
+        		this.ctx.drawImage(this.sloth, 0,this.canvas.height-100, this.canvas.width, 100); 
+        		        
+        		this.drawSlingShot(this.ctx); //Draw the slingshot
+        		
+        		for(var i =0; i < this.rocks.length; i++) {
+        		    var r = this.rocks[i];
 		
-        for(var i = 0; i < this.bullets.length; i++){
-            var b = this.bullets[i];
-            
-            b.draw(this.ctx);
-        }
-		//DRAW HUD
-		this.drawHUD(this.ctx);
+		            r.draw(this.ctx);
+		        }
+				
+		        for(var i = 0; i < this.bullets.length; i++){
+		            var b = this.bullets[i];
+		            
+		            b.draw(this.ctx);
+		        }
+				//DRAW HUD
+				this.drawHUD(this.ctx);
+				break;
+				
+			case this.SCREEN.PAUSED:
+				//PAUSE DRAW LOOP
+				this.ctx.drawImage(this.sloth, 0,this.canvas.height-100, this.canvas.width, 100); 
+        		        
+        		this.drawSlingShot(this.ctx); //Draw the slingshot
+        		
+        		for(var i =0; i < this.rocks.length; i++) {
+        		    var r = this.rocks[i];
 		
-		//if game is over
-		if(this.gameOver){
-			this.drawGameOverScreen(this.ctx);
+		            r.draw(this.ctx);
+		        }
+				
+		        for(var i = 0; i < this.bullets.length; i++){
+		            var b = this.bullets[i];
+		            
+		            b.draw(this.ctx);
+		        }
+				//DRAW HUD
+				this.drawHUD(this.ctx);
+				break;
+				
+			case this.SCREEN.GAMEOVER:
+				//GAME OVER DRAW LOOP
+				this.ctx.drawImage(this.sloth, 0,this.canvas.height-100, this.canvas.width, 100); 
+        		        
+        		this.drawSlingShot(this.ctx); //Draw the slingshot
+        		
+        		for(var i =0; i < this.rocks.length; i++) {
+        		    var r = this.rocks[i];
+		
+		            r.draw(this.ctx);
+		        }
+				
+		        for(var i = 0; i < this.bullets.length; i++){
+		            var b = this.bullets[i];
+		            
+		            b.draw(this.ctx);
+		        }
+				//DRAW HUD
+				this.drawHUD(this.ctx);
+				this.drawGameOverScreen(this.ctx);
+				break;
 		}
     },
 
     ///This function will pause the game
     pauseGame: function() {
-        this.paused = true;      
+        this.screenState = this.SCREEN.PAUSED;      
         cancelAnimationFrame(this.animationID); //Stop the animation loop
         this.update(); //Updates the screen once so that the pause screen is shown
     },
@@ -327,7 +392,7 @@ app.main = {
     ///This function will resume the game after pause
     resumeGame: function() {
         cancelAnimationFrame(this.animationID); //Stop the animation loop in case it's running
-        this.paused = false;
+        this.screenState = this.SCREEN.GAME;
         this.update(); //Restart the loop
     },
 
