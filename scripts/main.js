@@ -407,19 +407,11 @@ app.main = {
 
     ///This function will pause the game
     pauseGame: function() {
-<<<<<<< HEAD
 		if(this.screenState == this.SCREEN.GAME){
         	this.screenState = this.SCREEN.PAUSED;      
         	cancelAnimationFrame(this.animationID); //Stop the animation loop
         	this.update(); //Updates the screen once so that the pause screen is shown
 		}
-=======
-        if (this.screenState != this.SCREEN.GAMEOVER) {
-            this.screenState = this.SCREEN.PAUSED;      
-            cancelAnimationFrame(this.animationID); //Stop the animation loop
-            this.update(); //Updates the screen once so that the pause screen is shown
-        }
->>>>>>> origin/test
     },
 
     ///This function will resume the game after pause
@@ -617,11 +609,7 @@ app.main = {
    	///When the slingshot is clicked on
    	clickedSlingShot: function(e) {
         //If the game is not paused
-<<<<<<< HEAD
         if (!this.screenState != this.SCREEN.PAUSED  ) {
-=======
-        if (this.screenState != this.SCREEN.PAUSED) {
->>>>>>> origin/test
             var mouse = getMouse(e); //Get the position of the mouse on the canvas
             var defaultPoint = new Victor(this.clickpoint.defaultX, this.clickpoint.defaultY);
             var movedPoint = new Victor(this.clickpoint.x, this.clickpoint.y);
