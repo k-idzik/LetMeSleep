@@ -259,6 +259,7 @@ app.main = {
 
 	//START GAME METHOD
 	startGame: function() {
+		
 		//Set the clickpoint coordinates
         this.clickpoint.defaultX = this.clickpoint.x = this.canvas.width / 2;
         this.clickpoint.defaultY = this.clickpoint.y = this.canvas.height - 220;      
@@ -273,7 +274,11 @@ app.main = {
     
 	//RESET GAME METHOD
 	resetGame: function(){
+		this.slothLives = 3;
+		this.score = 0;
 		
+		this.screenState = this.SCREEN.MAIN;
+		this.canvas.onmousedown = this.mainMenuClicked.bind(this);
 	},
 	
 	drawTitleScreen: function(ctx) {
@@ -407,7 +412,7 @@ app.main = {
         ctx.lineTo(this.canvas.width / 2.6, this.canvas.height - 220);
         ctx.moveTo(this.canvas.width / 2, this.canvas.height - 170);
         ctx.lineTo(this.canvas.width - (this.canvas.width / 2.6), this.canvas.height - 220);
-        ctx.stroke();
+        //ctx.stroke();
         
         //Draw the slingshot's curved component
         ctx.lineWidth = 5;
@@ -416,7 +421,7 @@ app.main = {
         ctx.moveTo(this.canvas.width / 2.6, this.canvas.height - 220);
         ctx.lineTo(this.clickpoint.x, this.clickpoint.y);
         ctx.lineTo(this.canvas.width - (this.canvas.width / 2.6), this.canvas.height - 220);
-        ctx.stroke();
+        //ctx.stroke();
         
         //Draw the slingshot's click point
         ctx.fillStyle = "dimgrey";
@@ -438,7 +443,7 @@ app.main = {
 
             ctx.beginPath();
             ctx.arc(this.x, this.y, this.radius, 0, Math.PI*2);
-            ctx.stroke();
+           // ctx.stroke();
             ctx.fill();
             ctx.closePath();
 
@@ -543,7 +548,7 @@ app.main = {
             
             ctx.beginPath();
             ctx.arc(this.x, this.y, this.radius, 0, Math.PI*2);
-            ctx.stroke();
+            //ctx.stroke();
             ctx.fill();
             ctx.closePath();
             
@@ -613,6 +618,9 @@ app.main = {
             var defaultPoint = new Victor(this.clickpoint.defaultX, this.clickpoint.defaultY);
             var movedPoint = new Victor(this.clickpoint.x, this.clickpoint.y);
             
+			if(this.screenState == this.SCREEN.GAMEOVER){
+				this.resetGame();
+			}
             //Check event type and set if the clickpoint is being used
             if (e.type == "mousedown" && clickedInsideSling(mouse.x, mouse.y, this.clickpoint) && defaultPoint.distance(movedPoint) < 1)
                 this.clickpoint.mouseClicked = true;
