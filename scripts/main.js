@@ -296,7 +296,7 @@ app.main = {
 		
 		//DRAW START GAME BUTTON
 		ctx.fillStyle = "#C2976B";
-		ctx.stroke = "#BF9469";
+		ctx.strokeStyle = "#BF9469";
 		ctx.fillRect((this.canvas.width /2) - 100, 300, 200, 50);
 		ctx.strokeRect((this.canvas.width /2) - 100, 300, 200, 50)
 		ctx.fillStyle = 'black';
@@ -305,7 +305,7 @@ app.main = {
 		
 		//DRAW HOW TO PLAY GAME BUTTON
 		ctx.fillStyle = "#C2976B";
-		ctx.stroke = "#BF9469";
+		ctx.strokeStyle = "#BF9469";
 		ctx.fillRect((this.canvas.width /2) - 100, 400, 200, 50);
 		ctx.strokeRect((this.canvas.width /2) - 100, 400, 200, 50)
 		ctx.fillStyle = 'black';
@@ -314,7 +314,7 @@ app.main = {
 		
 		//DRAW HOW TO PLAY GAME BUTTON
 		ctx.fillStyle = "#C2976B";
-		ctx.stroke = "#BF9469";
+		ctx.strokeStyle = "#BF9469";
 		ctx.fillRect((this.canvas.width /2) - 100, 500, 200, 50);
 		ctx.strokeRect((this.canvas.width /2) - 100, 500, 200, 50)
 		ctx.fillStyle = 'black';
@@ -412,7 +412,7 @@ app.main = {
         ctx.lineTo(this.canvas.width / 2.6, this.canvas.height - 220);
         ctx.moveTo(this.canvas.width / 2, this.canvas.height - 170);
         ctx.lineTo(this.canvas.width - (this.canvas.width / 2.6), this.canvas.height - 220);
-        //ctx.stroke();
+        ctx.stroke();
         
         //Draw the slingshot's curved component
         ctx.lineWidth = 5;
@@ -421,7 +421,7 @@ app.main = {
         ctx.moveTo(this.canvas.width / 2.6, this.canvas.height - 220);
         ctx.lineTo(this.clickpoint.x, this.clickpoint.y);
         ctx.lineTo(this.canvas.width - (this.canvas.width / 2.6), this.canvas.height - 220);
-        //ctx.stroke();
+        ctx.stroke();
         
         //Draw the slingshot's click point
         ctx.fillStyle = "dimgrey";
@@ -443,7 +443,7 @@ app.main = {
 
             ctx.beginPath();
             ctx.arc(this.x, this.y, this.radius, 0, Math.PI*2);
-           // ctx.stroke();
+            ctx.stroke();
             ctx.fill();
             ctx.closePath();
 
@@ -548,7 +548,7 @@ app.main = {
             
             ctx.beginPath();
             ctx.arc(this.x, this.y, this.radius, 0, Math.PI*2);
-            //ctx.stroke();
+            ctx.stroke();
             ctx.fill();
             ctx.closePath();
             
