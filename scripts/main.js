@@ -266,35 +266,51 @@ app.main = {
         //Update the animation frame 60 times a second, binding it to call itself
         this.animationID = requestAnimationFrame(this.update.bind(this));
 
-        //If the game is paused
-        if (this.screenState == this.SCREEN.PAUSED) {
-            this.drawPauseScreen(this.ctx);
-            return; //Skip the rest of the loop
-        }
-        
-        
-        
-		if(this.screenState != this.SCREEN.GAMEOVER) {
-	        this.makeRocks();
-	        
-	        for(var i =0; i < this.rocks.length; i++) {
-	            var r = this.rocks[i];
-	
-        	    r.update(this);
-        	}
-         
-            for(var i = 0; i < this.bullets.length; i++){
-                var b = this.bullets[i];
-                
-                b.update(this);
-            }
-			
-			this.useSlingShot();
+		switch(this.screenState){
+				case this.SCREEN.MAIN:
+				//MAIN MENU Update LOOP
+				break;
+				
+			case this.SCREEN.INSTRUCTION:
+				//Instruction screen UPDATE LOOP
+				break;
+				
+			case this.SCREEN.GAME:
+				//GAME UPDATE LOOP
+				this.makeRocks();
+	        	
+	        	for(var i =0; i < this.rocks.length; i++) {
+	        	    var r = this.rocks[i];
+		
+    	    	    r.update(this);
+    	    	}
+    	     
+    	        for(var i = 0; i < this.bullets.length; i++){
+    	            var b = this.bullets[i];
+    	            
+    	            b.update(this);
+    	        }
+				
+				this.useSlingShot();
+				
+				if(this.slothLives <=0) {
+					this.screenState = this.SCREEN.GAMEOVER;
+				}
+				
+				break;
+				
+			case this.SCREEN.PAUSED:
+				//PAUSE UPDATE LOOP
+				this.drawPauseScreen(this.ctx);
+				break;
+				
+			case this.SCREEN.GAMEOVER:
+				//GAME OVER UPDATE LOOP
+				
+				break;
 		}
 		
-		if(this.slothLives <=0) {
-			this.screenState = this.SCREEN.GAMEOVER;
-		}
+		
         
         
         
@@ -356,6 +372,8 @@ app.main = {
 		        }
 				//DRAW HUD
 				this.drawHUD(this.ctx);
+				
+				this.drawPauseScreen(this.ctx);
 				break;
 				
 			case this.SCREEN.GAMEOVER:
