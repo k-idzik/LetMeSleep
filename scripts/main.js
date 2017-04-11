@@ -254,12 +254,11 @@ app.main = {
         this.animationID = requestAnimationFrame(this.update.bind(this));
 
         //If the game is paused
-        if (this.paused) {
+        if (this.paused && !this.gameOver) {
             this.drawPauseScreen(this.ctx);
             return; //Skip the rest of the loop
         }
-        
-        
+             
         
 		if(!this.gameOver) {
 	        this.makeRocks();
@@ -380,6 +379,7 @@ app.main = {
 		ctx.restore();
 	},
 	
+	
 	drawGameOverScreen: function(ctx){
 		ctx.save(); //Save the current state of the canvas
 
@@ -485,8 +485,8 @@ app.main = {
                 this.clickpoint.y -= (movedPoint.y - defaultPoint.y) / 3;     
             }
             
-            //Fire a bullet
-            if (this.clickpoint.previousMouseClicked) {
+            //Fire a bullet if the slingshot has moved far enough
+            if (this.clickpoint.previousMouseClicked && defaultPoint.distance(movedPoint) > 5) {
                 this.makeBullet(this.clickpoint.x, this.clickpoint.y, Victor(movedPoint.x - defaultPoint.x, movedPoint.y - defaultPoint.y)); //Make a bullet
                 this.clickpoint.previousMouseClicked = false;
             }
