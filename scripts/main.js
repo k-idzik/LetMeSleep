@@ -8,8 +8,6 @@ app.main = {
     canvas: undefined,
     ctx: undefined,
     animationID: 0,
-    paused: false,
-	gameOver: false,
     score: 0,
     
     //Images
@@ -145,12 +143,17 @@ app.main = {
     },
 	
     //MAKE BULLET
-    makeBullet: function(x, y, direction) {
+    makeBullet: function(x, y, direction, speed) {
         var BULLET_UPDATE = function(appRef) {
             direction.normalize();
             
-            this.x -= direction.x * this.speed;
-            this.y -= direction.y * this.speed;
+            //this.x -= direction.x * this.speed;
+            //this.y -= direction.y * this.speed;
+            
+            //Use the speed passed in through the method
+            //More speed references may need to be updated later
+            this.x -= direction.x * speed;
+            this.y -= direction.y * speed;
             
             //TO BE REPLACED WITH SLING SHOT DETERMINING SPEED
             //this.x += this.speed;
@@ -265,9 +268,9 @@ app.main = {
     update: function() {
         //Update the animation frame 60 times a second, binding it to call itself
         this.animationID = requestAnimationFrame(this.update.bind(this));
-
-		switch(this.screenState){
-				case this.SCREEN.MAIN:
+        
+		switch(this.screenState) {
+            case this.SCREEN.MAIN:
 				//MAIN MENU Update LOOP
 				
 				//SEE IF PLAYER SELECTED START BUTTON
@@ -284,11 +287,11 @@ app.main = {
 	        	
 	        	for(var i =0; i < this.rocks.length; i++) {
 	        	    var r = this.rocks[i];
-		
+                    
     	    	    r.update(this);
     	    	}
     	     
-    	        for(var i = 0; i < this.bullets.length; i++){
+    	        for(var i = 0; i < this.bullets.length; i++) {
     	            var b = this.bullets[i];
     	            
     	            b.update(this);
@@ -304,7 +307,7 @@ app.main = {
 				
 			case this.SCREEN.PAUSED:
 				//PAUSE UPDATE LOOP
-				this.drawPauseScreen(this.ctx);
+                this.drawPauseScreen(this.ctx);
 				break;
 				
 			case this.SCREEN.GAMEOVER:
@@ -312,10 +315,6 @@ app.main = {
 				
 				break;
 		}
-		
-		
-        
-        
         
         this.draw();
     },
@@ -325,6 +324,7 @@ app.main = {
         //Draw the background
         this.ctx.fillStyle = '#87CEEB';
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height); //Redraw the background
+        
 		switch(this.screenState){
 			case this.SCREEN.MAIN:
 				//MAIN MENU DRAW LOOP
@@ -407,11 +407,19 @@ app.main = {
 
     ///This function will pause the game
     pauseGame: function() {
+<<<<<<< HEAD
 		if(this.screenState == this.SCREEN.GAME){
         	this.screenState = this.SCREEN.PAUSED;      
         	cancelAnimationFrame(this.animationID); //Stop the animation loop
         	this.update(); //Updates the screen once so that the pause screen is shown
 		}
+=======
+        if (this.screenState != this.SCREEN.GAMEOVER) {
+            this.screenState = this.SCREEN.PAUSED;      
+            cancelAnimationFrame(this.animationID); //Stop the animation loop
+            this.update(); //Updates the screen once so that the pause screen is shown
+        }
+>>>>>>> origin/test
     },
 
     ///This function will resume the game after pause
@@ -499,6 +507,7 @@ app.main = {
         ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
         //Align the text on the screen
+        ctx.globalAlpha = 1;
         ctx.translate(this.canvas.width / 2, this.canvas.height / 4);
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
@@ -507,7 +516,7 @@ app.main = {
         ctx.font = "40pt Open Sans";
         ctx.fillStyle = "white";
         ctx.fillText("PAUSED", 0, 0);
-
+        
         ctx.restore(); //Restore the canvas state to what it was before drawing the pause screen
     },
 
@@ -531,24 +540,29 @@ app.main = {
 		ctx.restore();
 	},
 	
+	
 	drawGameOverScreen: function(ctx){
 		ctx.save(); //Save the current state of the canvas
 
         //Obscure the game
-        ctx.globalAlpha = .5;
-        ctx.fillStyle = "grey";
+        ctx.globalAlpha = .75;
+        ctx.fillStyle = "black";
         ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
         //Align the text on the screen
 		ctx.globalAlpha = 1;
+        ctx.translate(this.canvas.width / 2, this.canvas.height / 4);
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
 
         //Draw text
         ctx.font = "40pt Open Sans";
         ctx.fillStyle = "white";
-        ctx.fillText("GAME OVER", this.canvas.width/2, this.canvas.height/2-200);
+        ctx.fillText("GAME OVER", 0, 0);
 
+        ctx.font = "12pt Open Sans";
+        ctx.fillText("Click to play again!", 0, 40);
+        
         ctx.restore(); //Restore the canvas state to what it was before drawing the pause screen
 	},
     
@@ -603,7 +617,11 @@ app.main = {
    	///When the slingshot is clicked on
    	clickedSlingShot: function(e) {
         //If the game is not paused
+<<<<<<< HEAD
         if (!this.screenState != this.SCREEN.PAUSED  ) {
+=======
+        if (this.screenState != this.SCREEN.PAUSED) {
+>>>>>>> origin/test
             var mouse = getMouse(e); //Get the position of the mouse on the canvas
             var defaultPoint = new Victor(this.clickpoint.defaultX, this.clickpoint.defaultY);
             var movedPoint = new Victor(this.clickpoint.x, this.clickpoint.y);
@@ -621,7 +639,7 @@ app.main = {
    	//When the slingshot is moved
    	moveSlingShot: function(e) {
    	    //If the mouse if being clicked and the game is not paused, allow the slingshot to be used
-   	    if (this.clickpoint.mouseClicked && !this.paused) {
+   	    if (this.clickpoint.mouseClicked && this.screenState != this.SCREEN.PAUSED) {
             //Make vectors to limit the distance the slingshot can move
             var defaultPoint = new Victor(this.clickpoint.defaultX, this.clickpoint.defaultY);
             var movedPoint = new Victor(this.clickpoint.x, this.clickpoint.y);
@@ -648,9 +666,9 @@ app.main = {
                 this.clickpoint.y -= (movedPoint.y - defaultPoint.y) / 3;     
             }
             
-            //Fire a bullet
-            if (this.clickpoint.previousMouseClicked) {
-                this.makeBullet(this.clickpoint.x, this.clickpoint.y, Victor(movedPoint.x - defaultPoint.x, movedPoint.y - defaultPoint.y)); //Make a bullet
+            //Fire a bullet if the slingshot has moved far enough
+            if (this.clickpoint.previousMouseClicked && defaultPoint.distance(movedPoint) > 5) {
+                this.makeBullet(this.clickpoint.x, this.clickpoint.y, Victor(movedPoint.x - defaultPoint.x, movedPoint.y - defaultPoint.y), defaultPoint.distance(movedPoint) / 10); //Make a bullet
                 this.clickpoint.previousMouseClicked = false;
             }
         }
