@@ -17,17 +17,12 @@ function clickedInsideSling(x, y, I) {
 	return dx * dx + dy * dy <= I.radius * I.radius;
 }
 
-function clickedInsideStart(x, y, canvasWidth) {
-		//(this.canvas.width /2) - 100, 300, 200, 50
-		//debugger;
-		
-		var xMAX = ((canvasWidth/2)+100);
-		var xMin = ((canvasWidth/2) - 100);
-    
-		if (xMAX > x && x > xMin && 350>y && y>300) {
-			return true;
-		}
-		else {
-			return false;
-		}
+
+function clickedInsideButton(x, y, xMin, xMax, yMin, yMax){
+	if(xMax > x && x > xMin && yMax > y && y > yMin){
+		return true;
+	}
+	else {
+		return false;
+	}
 }

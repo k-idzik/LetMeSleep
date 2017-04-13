@@ -26,6 +26,7 @@ app.main = {
 		GAME: 2,
 		PAUSED: 3,
 		GAMEOVER: 4,
+		CREDITS: 5
 	}),
 	
 	screenState: 0, //will hold the current screen state of the game
@@ -149,6 +150,10 @@ app.main = {
 				//GAME OVER UPDATE LOOP
 				
 				break;
+			
+			case this.SCREEN.CREDITS:
+				//CREDITS UPDATE LOOP
+				break;
 		}
         
         this.draw(this.ctx);
@@ -236,6 +241,10 @@ app.main = {
 				this.drawHUD(ctx);
 				this.drawGameOverScreen(ctx);
 				break;
+				
+			case this.SCREEN.CREDITS:
+				this.drawCreditScreen(ctx);
+				break;
 		}
     },
 
@@ -281,6 +290,17 @@ app.main = {
 		this.canvas.onmousedown = this.mainMenuClicked.bind(this);
 	},
 	
+	//Switches to instruction screen
+	switchInstruct: function(){
+		
+		this.screenState = this.SCREEN.INSTRUCTION;
+	},
+	
+	//Switches to Credits Screen
+	switchCredits: function(){
+		this.screenState = this.SCREEN.CREDITS;	
+	},
+	
 	drawTitleScreen: function(ctx) {
 		ctx.save();	
 		
@@ -296,7 +316,7 @@ app.main = {
 		
 		//DRAW START GAME BUTTON
 		ctx.fillStyle = "#C2976B";
-		ctx.strokeStyle = "#BF9469";
+		ctx.strokeStyle = "brown";
 		ctx.fillRect((this.canvas.width /2) - 100, 300, 200, 50);
 		ctx.strokeRect((this.canvas.width /2) - 100, 300, 200, 50)
 		ctx.fillStyle = 'black';
@@ -305,16 +325,16 @@ app.main = {
 		
 		//DRAW HOW TO PLAY GAME BUTTON
 		ctx.fillStyle = "#C2976B";
-		ctx.strokeStyle = "#BF9469";
+		ctx.strokeStyle = "brown";
 		ctx.fillRect((this.canvas.width /2) - 100, 400, 200, 50);
 		ctx.strokeRect((this.canvas.width /2) - 100, 400, 200, 50)
 		ctx.fillStyle = 'black';
 		ctx.font = "20pt Open Sans";
 		ctx.fillText("INSTRUCTIONS", this.canvas.width/2, 430);
 		
-		//DRAW HOW TO PLAY GAME BUTTON
+		//DRAW CREDITS BUTTON
 		ctx.fillStyle = "#C2976B";
-		ctx.strokeStyle = "#BF9469";
+		ctx.strokeStyle = "brown";
 		ctx.fillRect((this.canvas.width /2) - 100, 500, 200, 50);
 		ctx.strokeRect((this.canvas.width /2) - 100, 500, 200, 50)
 		ctx.fillStyle = 'black';
@@ -326,6 +346,43 @@ app.main = {
         ctx.restore();
 	},
 	
+	//This function will draw the Instruction Screen
+	
+	//This function will draw the Credits Screen
+	drawCreditScreen: function(ctx){
+		ctx.save();	
+		
+		//Draw Sleeping Sloth
+		ctx.drawImage(this.sloth, 0, 50, this.canvas.width, 100); 
+		
+		//Draw TITLE
+		ctx.textAlign = "center";
+        ctx.textBaseline = "center";
+		ctx.font = "40pt Open Sans";
+		ctx.fillStyle = 'black';
+		ctx.fillText("LET ME SLEEP!" , this.canvas.width/2, 200);
+		ctx.fillText("Made by:", this.canvas.width/2, 260);
+		
+		//DRAW KEVIN CREDIT
+		ctx.drawImage(this.slothHead, 50, 300, 50,50);
+		ctx.font = "20pt Open Sans";
+		ctx.fillText("KEVIN IDZIK", 200,330);
+		
+		//DRAW KEVIN CREDIT
+		ctx.drawImage(this.slothHead, 50, 400, 50,50);
+		ctx.font = "20pt Open Sans";
+		ctx.fillText("JOSH MALMQUIST", 230,430);
+		//DRAW CREDITS BUTTON
+		ctx.fillStyle = "#C2976B";
+		ctx.strokeStyle = "brown";
+		ctx.fillRect((this.canvas.width /2) - 90, this.canvas.height -90, 200, 50);
+		ctx.strokeRect((this.canvas.width /2) - 90, this.canvas.height-90, 200, 50)
+		ctx.fillStyle = 'black';
+		ctx.font = "20pt Open Sans";
+		ctx.fillText("Back", this.canvas.width/2, this.canvas.height-60);
+		
+		ctx.drawImage(this.sloth, 0, this.canvas.height-200, this.canvas.width, 100); 
+	},
     ///This function will draw the pause screen
     drawPauseScreen: function(ctx) {
         ctx.save(); //Save the current state of the canvas
@@ -602,12 +659,46 @@ app.main = {
 	mainMenuClicked: function(e) {
 		var mouse = getMouse(e);
 		//debugger;
-		var insideStart = clickedInsideStart(mouse.x, mouse.y, this.canvas.width);
-        
+		var insideStart = clickedInsideButton(
+			mouse.x, //mouse x pos
+			mouse.y, //mouse y pos
+			((this.canvas.width/2)-100), //xMin for button,
+			((this.canvas.width/2)+100), //xMax for button,
+			300, //yMin for button
+			350 //yMax for button
+		);
+		
+        var insideInstruct = clickedInsideButton(
+			mouse.x, //mouse x pos
+			mouse.y, //mouse y pos
+			((this.canvas.width/2)-100), //xMin for button,
+			((this.canvas.width/2)+100), //xMax for button,
+			400, //yMin for button
+			450 //yMax for button
+		);
+		
+		debugger;
+		var insideCredits = clickedInsideButton(
+			mouse.x, //mouse x pos
+			mouse.y, //mouse y pos
+			((this.canvas.width/2)-100), //xMin for button,
+			((this.canvas.width/2)+100), //xMax for button,
+			500, //yMin for button
+			550 //yMax for button
+		);
+		
 		if(insideStart){
 		    console.log("Start clicked");
 			this.startGame();
 		}
+		else if(insideInstruct){
+			console.log("instruct clicked");
+			this.switchInstruct();
+		}
+		else if(insideCredits){
+			this.switchCredits();
+		}
+		
 	},
 		   
    	///When the slingshot is clicked on
