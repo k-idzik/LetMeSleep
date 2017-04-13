@@ -173,6 +173,7 @@ app.main = {
 				
 			case this.SCREEN.INSTRUCTION:
 				//Instruction screen DRAW LOOP
+				this.drawInstructionScreen(ctx);
 				break;
 				
 			case this.SCREEN.GAME:
@@ -293,11 +294,25 @@ app.main = {
 	//Switches to instruction screen
 	switchInstruct: function(){
 		
+		//Set the clickpoint coordinates
+        this.clickpoint.defaultX = this.clickpoint.x = this.canvas.width / 2;
+        this.clickpoint.defaultY = this.clickpoint.y = this.canvas.height - 220;      
+        
+        //Hook up events
+        this.canvas.onmousedown = this.backClicked.bind(this);
+		
 		this.screenState = this.SCREEN.INSTRUCTION;
 	},
 	
 	//Switches to Credits Screen
 	switchCredits: function(){
+		//Set the clickpoint coordinates
+        this.clickpoint.defaultX = this.clickpoint.x = this.canvas.width / 2;
+        this.clickpoint.defaultY = this.clickpoint.y = this.canvas.height - 220;      
+        
+        //Hook up events
+        this.canvas.onmousedown = this.backClicked.bind(this);
+		
 		this.screenState = this.SCREEN.CREDITS;	
 	},
 	
@@ -347,6 +362,31 @@ app.main = {
 	},
 	
 	//This function will draw the Instruction Screen
+	drawInstructionScreen: function(ctx){
+		ctx.save();	
+		
+		//Draw Sleeping Sloth
+		ctx.drawImage(this.sloth, 0, 50, this.canvas.width, 100); 
+		
+		//Draw TITLE
+		ctx.textAlign = "center";
+        ctx.textBaseline = "center";
+		ctx.font = "40pt Open Sans";
+		ctx.fillStyle = 'black';
+		ctx.fillText("INSTRUCTION!" , this.canvas.width/2, 200);
+		
+		//DRAW Back BUTTON
+		ctx.fillStyle = "#C2976B";
+		ctx.strokeStyle = "brown";
+		ctx.fillRect((this.canvas.width /2) - 90, this.canvas.height -90, 200, 50);
+		ctx.strokeRect((this.canvas.width /2) - 90, this.canvas.height-90, 200, 50)
+		ctx.fillStyle = 'black';
+		ctx.font = "20pt Open Sans";
+		ctx.fillText("Back", this.canvas.width/2, this.canvas.height-60);
+		
+		ctx.drawImage(this.sloth, 0, this.canvas.height-200, this.canvas.width, 100);
+		ctx.restore();
+	},
 	
 	//This function will draw the Credits Screen
 	drawCreditScreen: function(ctx){
@@ -372,7 +412,7 @@ app.main = {
 		ctx.drawImage(this.slothHead, 50, 400, 50,50);
 		ctx.font = "20pt Open Sans";
 		ctx.fillText("JOSH MALMQUIST", 230,430);
-		//DRAW CREDITS BUTTON
+		//DRAW Back BUTTON
 		ctx.fillStyle = "#C2976B";
 		ctx.strokeStyle = "brown";
 		ctx.fillRect((this.canvas.width /2) - 90, this.canvas.height -90, 200, 50);
@@ -381,7 +421,8 @@ app.main = {
 		ctx.font = "20pt Open Sans";
 		ctx.fillText("Back", this.canvas.width/2, this.canvas.height-60);
 		
-		ctx.drawImage(this.sloth, 0, this.canvas.height-200, this.canvas.width, 100); 
+		ctx.drawImage(this.sloth, 0, this.canvas.height-200, this.canvas.width, 100);
+		ctx.restore();
 	},
     ///This function will draw the pause screen
     drawPauseScreen: function(ctx) {
@@ -697,6 +738,26 @@ app.main = {
 		}
 		else if(insideCredits){
 			this.switchCredits();
+		}
+		
+	},
+	
+	//Credit Clicked Function
+	backClicked: function(e){
+		var mouse = getMouse(e);
+		
+		var insideBack = clickedInsideButton(
+			mouse.x, //mouse x pos
+			mouse.y, //mouse y pos
+			((this.canvas.width/2)-90), //xMin for button,
+			((this.canvas.width/2)-90) + 200, //xMax for button,
+			this.canvas.height-90, //yMin for button
+			this.canvas.height-40//yMax for button
+		);
+		
+		if(insideBack){
+			this.canvas.onmousedown = this.mainMenuClicked.bind(this);  
+			this.screenState = this.SCREEN.MAIN;
 		}
 		
 	},
