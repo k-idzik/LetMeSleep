@@ -7,6 +7,7 @@ var app = app || {};
 window.onload = function() {
     //Load resources here
     
+    app.main.Particles = app.Particles; //Load the particles script
     app.main.init(); //Begin the game
 }
 

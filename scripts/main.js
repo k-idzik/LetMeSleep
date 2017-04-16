@@ -65,6 +65,9 @@ app.main = {
         BULLET_ART: this.bulletImg,
     }),
     
+    Particles: undefined,
+    particleEmitter: undefined,
+    
     ///Initialization function
     init: function() {
         this.canvas = document.querySelector("canvas");
@@ -96,7 +99,7 @@ app.main = {
 		this.slothHead.src = "art/slothHead.png";
 		
         //this.makeRocks(); //I'm not sure this needs to be here
-
+        
         this.update(); //Start the animation loop
     },
 
@@ -163,7 +166,7 @@ app.main = {
     draw: function(ctx) {    
         //Draw the background
         ctx.fillStyle = '#87CEEB';
-        ctx.fillRect(0, 0, this.canvas.width, this.canvas.height); //Redraw the background
+        ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
         
 		switch(this.screenState){
 			case this.SCREEN.MAIN:
@@ -194,6 +197,11 @@ app.main = {
 		            
 		            b.draw(ctx);
 		        }
+                
+                //Draw particles when they are needed
+                if (this.particleEmitter != undefined && this.particleEmitter.activated)
+                    this.particleEmitter.update(this.ctx);
+                
 				//DRAW HUD
 				this.drawHUD(ctx);
 				break;
@@ -545,7 +553,6 @@ app.main = {
             ctx.fill();
             ctx.closePath();
 
-
             ctx.restore();
         };
 
@@ -658,15 +665,18 @@ app.main = {
                 var dist = Math.sqrt(Math.pow((appRef.rocks[i].x - this.x),2) + Math.pow((appRef.rocks[i].y - this.y),2));
                 
                 if(dist < (this.radius + appRef.rocks[i].radius)) {
-                    //Bullet is colliding with rock
-                    console.dir(appRef);
-                    console.log("Score: " + appRef.rocks[i].value);
+                    //Bullet is colliding with rock                    
                     appRef.score += appRef.rocks[i].value;
+                    
+                    //Initialize particles
+                    appRef.particleEmitter = new appRef.Particles();
+                    appRef.particleEmitter.initialize(appRef.rocks[i].x, appRef.rocks[i].y);
                     
                     //remove from rocks array
                     appRef.rocks.splice(i, 1);
+                    
                     for(var j =0; j < appRef.bullets.length; j++) {
-                        if(appRef.bullets[j] == this){
+                        if(appRef.bullets[j] == this) {                            
                             appRef.bullets.splice(j, 1);
                             delete this;
                             break;
