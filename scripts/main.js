@@ -165,7 +165,12 @@ app.main = {
     ///Everything related to drawing should happen here
     draw: function(ctx) {    
         //Draw the background
-        ctx.fillStyle = '#87CEEB';
+        var grad = ctx.createLinearGradient(0, 0, 0, this.canvas.height);
+
+        grad.addColorStop(0, "#9EB9D4");
+        grad.addColorStop(.5, "#87CEEB");
+
+        ctx.fillStyle = grad;
         ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
         
 		switch(this.screenState){
