@@ -410,45 +410,49 @@ app.main = {
 	
 	drawTitleScreen: function(ctx) {
 		ctx.save();	
-		
-		//Draw Sleeping Sloth
-		ctx.drawImage(this.sloth, 0, 50, this.canvas.width, 100); 
+        
+		//Draw Sleeping Sloths
+		ctx.drawImage(this.sloth, 0, 0, this.canvas.width, 100);
+        ctx.drawImage(this.sloth, 0, this.canvas.height - 100, this.canvas.width, 100); 
 		
 		//Draw TITLE
 		ctx.textAlign = "center";
-        ctx.textBaseline = "center";
-		ctx.font = "40pt Open Sans";
+        ctx.textBaseline = "middle";
+        
+        if (this.canvas.height == 800)
+            ctx.font = "40pt Open Sans";
+        else
+            ctx.font = "32pt Open Sans";
+        
 		ctx.fillStyle = 'black';
-		ctx.fillText("LET ME SLEEP!" , this.canvas.width/2, 200);
+		ctx.fillText("LET ME SLEEP!" , this.canvas.width/2, this.canvas.height / 4);
 		
 		//DRAW START GAME BUTTON
 		ctx.fillStyle = "#C2976B";
 		ctx.strokeStyle = "brown";
-		ctx.fillRect((this.canvas.width /2) - 100, 300, 200, 50);
-		ctx.strokeRect((this.canvas.width /2) - 100, 300, 200, 50)
+		ctx.fillRect((this.canvas.width /2) - 100, (this.canvas.height / 4) * 1.5, 200, 50);
+		ctx.strokeRect((this.canvas.width /2) - 100, (this.canvas.height / 4) * 1.5, 200, 50)
 		ctx.fillStyle = 'black';
 		ctx.font = "20pt Open Sans";
-		ctx.fillText("START GAME", this.canvas.width/2, 330);
+		ctx.fillText("START GAME", this.canvas.width/2, (this.canvas.height / 4) * 1.5 + 30);
 		
 		//DRAW HOW TO PLAY GAME BUTTON
 		ctx.fillStyle = "#C2976B";
 		ctx.strokeStyle = "brown";
-		ctx.fillRect((this.canvas.width /2) - 100, 400, 200, 50);
-		ctx.strokeRect((this.canvas.width /2) - 100, 400, 200, 50)
+		ctx.fillRect((this.canvas.width /2) - 100, (this.canvas.height / 4) * 2, 200, 50);
+		ctx.strokeRect((this.canvas.width /2) - 100, (this.canvas.height / 4) * 2, 200, 50)
 		ctx.fillStyle = 'black';
 		ctx.font = "20pt Open Sans";
-		ctx.fillText("INSTRUCTIONS", this.canvas.width/2, 430);
+		ctx.fillText("INSTRUCTIONS", this.canvas.width/2, (this.canvas.height / 4) * 2 + 30);
 		
 		//DRAW CREDITS BUTTON
 		ctx.fillStyle = "#C2976B";
 		ctx.strokeStyle = "brown";
-		ctx.fillRect((this.canvas.width /2) - 100, 500, 200, 50);
-		ctx.strokeRect((this.canvas.width /2) - 100, 500, 200, 50)
+		ctx.fillRect((this.canvas.width /2) - 100, (this.canvas.height / 4) * 2.5, 200, 50);
+		ctx.strokeRect((this.canvas.width /2) - 100, (this.canvas.height / 4) * 2.5, 200, 50)
 		ctx.fillStyle = 'black';
 		ctx.font = "20pt Open Sans";
-		ctx.fillText("CREDITS", this.canvas.width/2, 530);
-		
-		ctx.drawImage(this.sloth, 0, this.canvas.height-200, this.canvas.width, 100); 
+		ctx.fillText("CREDITS", this.canvas.width/2, (this.canvas.height / 4) * 2.5 + 30);
         
         ctx.restore();
 	},
@@ -457,26 +461,32 @@ app.main = {
 	drawInstructionScreen: function(ctx){
 		ctx.save();	
 		
-		//Draw Sleeping Sloth
-		ctx.drawImage(this.sloth, 0, 50, this.canvas.width, 100); 
+		//Draw Sleeping Sloths
+		ctx.drawImage(this.sloth, 0, 0, this.canvas.width, 100);
+        ctx.drawImage(this.sloth, 0, this.canvas.height - 100, this.canvas.width, 100); 
 		
 		//Draw TITLE
 		ctx.textAlign = "center";
-        ctx.textBaseline = "center";
-		ctx.font = "40pt Open Sans";
+        ctx.textBaseline = "middle";
+		
+        if (this.canvas.height == 800)
+            ctx.font = "40pt Open Sans";
+        else
+            ctx.font = "32pt Open Sans";
+        
 		ctx.fillStyle = 'black';
-		ctx.fillText("INSTRUCTION!" , this.canvas.width/2, 200);
+		ctx.fillText("INSTRUCTIONS!" , this.canvas.width/2, this.canvas.height / 4);
 		
 		//DRAW Back BUTTON
 		ctx.fillStyle = "#C2976B";
 		ctx.strokeStyle = "brown";
-		ctx.fillRect((this.canvas.width /2) - 90, this.canvas.height -90, 200, 50);
-		ctx.strokeRect((this.canvas.width /2) - 90, this.canvas.height-90, 200, 50)
+		ctx.fillRect((this.canvas.width /2) - 100, (this.canvas.height / 4) * 2.75, 200, 50);
+		ctx.strokeRect((this.canvas.width /2) - 100, (this.canvas.height / 4) * 2.75, 200, 50)
 		ctx.fillStyle = 'black';
 		ctx.font = "20pt Open Sans";
-		ctx.fillText("Back", this.canvas.width/2, this.canvas.height-60);
+		ctx.fillText("BACK", this.canvas.width/2, (this.canvas.height / 4) * 2.75 + 30);
 		
-		ctx.drawImage(this.sloth, 0, this.canvas.height-200, this.canvas.width, 100);
+
 		ctx.restore();
 	},
 	
@@ -484,38 +494,52 @@ app.main = {
 	drawCreditScreen: function(ctx){
 		ctx.save();	
 		
-		//Draw Sleeping Sloth
-		ctx.drawImage(this.sloth, 0, 50, this.canvas.width, 100); 
+		//Draw Sleeping Sloths
+		ctx.drawImage(this.sloth, 0, 0, this.canvas.width, 100);
+        ctx.drawImage(this.sloth, 0, this.canvas.height - 100, this.canvas.width, 100); 
 		
 		//Draw TITLE
 		ctx.textAlign = "center";
-        ctx.textBaseline = "center";
-		ctx.font = "40pt Open Sans";
+        ctx.textBaseline = "middle";
+
+        if (this.canvas.height == 800)
+            ctx.font = "40pt Open Sans";
+        else
+            ctx.font = "32pt Open Sans";
+        
 		ctx.fillStyle = 'black';
-		ctx.fillText("LET ME SLEEP!" , this.canvas.width/2, 200);
-		ctx.fillText("Made by:", this.canvas.width/2, 260);
+		ctx.fillText("LET ME SLEEP!" , this.canvas.width/2, this.canvas.height / 4);
+        ctx.font = "12pt Open Sans";
+		ctx.fillText("MADE BY:", this.canvas.width/2, (this.canvas.height / 4) + 30);
 		
+        //Change values for name drawing
+        ctx.textAlign = "left";
+        if (this.canvas.height == 800)
+            ctx.font = "20pt Open Sans";
+        else
+            ctx.font = "16pt Open Sans";
+        
 		//DRAW KEVIN CREDIT
-		ctx.drawImage(this.slothHead, 50, 300, 50,50);
-		ctx.font = "20pt Open Sans";
-		ctx.fillText("KEVIN IDZIK", 200,330);
+		ctx.drawImage(this.slothHead, this.canvas.width / 8, (this.canvas.height / 4) * 1.5, 50,50);
+		ctx.fillText("KEVIN IDZIK", (this.canvas.width / 8) + 60, (this.canvas.height / 4) * 1.5 + 30);
 		
-		//DRAW KEVIN CREDIT
-		ctx.drawImage(this.slothHead, 50, 400, 50,50);
-		ctx.font = "20pt Open Sans";
-		ctx.fillText("JOSH MALMQUIST", 230,430);
-		//DRAW Back BUTTON
-		ctx.fillStyle = "#C2976B";
+		//DRAW JOSH CREDIT
+		ctx.drawImage(this.slothHead, this.canvas.width / 8, (this.canvas.height / 4) * 2, 50,50);
+		ctx.fillText("JOSH MALMQUIST", (this.canvas.width / 8) + 60, (this.canvas.height / 4) * 2 + 30);
+
+        //Back button
+        ctx.textAlign = "center";
+        ctx.fillStyle = "#C2976B";
 		ctx.strokeStyle = "brown";
-		ctx.fillRect((this.canvas.width /2) - 90, this.canvas.height -90, 200, 50);
-		ctx.strokeRect((this.canvas.width /2) - 90, this.canvas.height-90, 200, 50)
+		ctx.fillRect((this.canvas.width /2) - 100, (this.canvas.height / 4) * 2.75, 200, 50);
+		ctx.strokeRect((this.canvas.width /2) - 100, (this.canvas.height / 4) * 2.75, 200, 50)
 		ctx.fillStyle = 'black';
 		ctx.font = "20pt Open Sans";
-		ctx.fillText("Back", this.canvas.width/2, this.canvas.height-60);
+		ctx.fillText("BACK", this.canvas.width/2, (this.canvas.height / 4) * 2.75 + 30);
 		
-		ctx.drawImage(this.sloth, 0, this.canvas.height-200, this.canvas.width, 100);
 		ctx.restore();
 	},
+    
     ///This function will draw the pause screen
     drawPauseScreen: function(ctx) {
         ctx.save(); //Save the current state of the canvas
@@ -793,14 +817,15 @@ app.main = {
 	//MAIN MENU CLICKED FUNCTION
 	mainMenuClicked: function(e) {
 		var mouse = getMouse(e);
+
 		//debugger;
 		var insideStart = clickedInsideButton(
 			mouse.x, //mouse x pos
 			mouse.y, //mouse y pos
 			((this.canvas.width/2)-100), //xMin for button,
 			((this.canvas.width/2)+100), //xMax for button,
-			300, //yMin for button
-			350 //yMax for button
+			(this.canvas.height / 4) * 1.5, //yMin for button
+			(this.canvas.height / 4) * 1.5 + 50 //yMax for button
 		);
 		
         var insideInstruct = clickedInsideButton(
@@ -808,8 +833,8 @@ app.main = {
 			mouse.y, //mouse y pos
 			((this.canvas.width/2)-100), //xMin for button,
 			((this.canvas.width/2)+100), //xMax for button,
-			400, //yMin for button
-			450 //yMax for button
+			(this.canvas.height / 4) * 2, //yMin for button
+			(this.canvas.height / 4) * 2 + 50 //yMax for button
 		);
 		
 		//debugger;
@@ -818,8 +843,8 @@ app.main = {
 			mouse.y, //mouse y pos
 			((this.canvas.width/2)-100), //xMin for button,
 			((this.canvas.width/2)+100), //xMax for button,
-			500, //yMin for button
-			550 //yMax for button
+			(this.canvas.height / 4) * 2.5, //yMin for button
+			(this.canvas.height / 4) * 2.5 + 50 //yMax for button
 		);
 		
 		if(insideStart){
@@ -843,10 +868,10 @@ app.main = {
 		var insideBack = clickedInsideButton(
 			mouse.x, //mouse x pos
 			mouse.y, //mouse y pos
-			((this.canvas.width/2)-90), //xMin for button,
-			((this.canvas.width/2)-90) + 200, //xMax for button,
-			this.canvas.height-90, //yMin for button
-			this.canvas.height-40//yMax for button
+			((this.canvas.width/2)-100), //xMin for button,
+			((this.canvas.width/2)) + 100, //xMax for button,
+			(this.canvas.height / 4) * 2.75, //yMin for button
+			(this.canvas.height / 4) * 2.75 + 50//yMax for button
 		);
 		
 		if(insideBack){
