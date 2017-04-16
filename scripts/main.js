@@ -510,12 +510,15 @@ app.main = {
 		ctx.fillStyle = 'black';
 		ctx.fillText("LET ME SLEEP!" , this.canvas.width/2, this.canvas.height / 4);
         ctx.font = "12pt Open Sans";
-		ctx.fillText("MADE BY:", this.canvas.width/2, (this.canvas.height / 4) + 30);
+        if (this.canvas.height == 800)
+            ctx.fillText("MADE BY:", this.canvas.width/2, (this.canvas.height / 4) + 40);
+        else
+            ctx.fillText("MADE BY:", this.canvas.width/2, (this.canvas.height / 4) + 30);
 		
         //Change values for name drawing
         ctx.textAlign = "left";
         if (this.canvas.height == 800)
-            ctx.font = "20pt Open Sans";
+            ctx.font = "24pt Open Sans";
         else
             ctx.font = "16pt Open Sans";
         
