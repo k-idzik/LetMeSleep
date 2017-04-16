@@ -709,11 +709,11 @@ app.main = {
             
             //Give the rock some variance in speed
             var weightRandom = Math.floor(Math.random() * 100); //0-99
-            if (weightRandom >= 0 && weightRandom < 60)
+            if (weightRandom >= 0 && weightRandom < 65)
                 r.speed = this.ROCK.SPEED;
-            else if (weightRandom >= 60 && weightRandom < 80)
+            else if (weightRandom >= 65 && weightRandom < 85)
                 r.speed = this.ROCK.SPEED + 1;
-            else if (weightRandom >= 80 && weightRandom < 95)
+            else if (weightRandom >= 85 && weightRandom < 95)
                 r.speed = this.ROCK.SPEED + 1.5;
             else
                 r.speed = this.ROCK.SPEED + 2.5;
