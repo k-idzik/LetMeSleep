@@ -706,8 +706,18 @@ app.main = {
             r.y = -20;
 
             r.radius = this.ROCK.RADIUS;
-
-            r.speed = this.ROCK.SPEED;
+            
+            //Give the rock some variance in speed
+            var weightRandom = Math.floor(Math.random() * 100); //0-99
+            if (weightRandom >= 0 && weightRandom < 60)
+                r.speed = this.ROCK.SPEED;
+            else if (weightRandom >= 60 && weightRandom < 80)
+                r.speed = this.ROCK.SPEED + 1;
+            else if (weightRandom >= 80 && weightRandom < 95)
+                r.speed = this.ROCK.SPEED + 1.5;
+            else
+                r.speed = this.ROCK.SPEED + 2.5;
+            
             r.value = this.ROCK.VALUE;
 
             r.draw = Rock_Draw;
