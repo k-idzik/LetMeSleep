@@ -15,6 +15,7 @@ app.main = {
 	slothHead: undefined,
     rockIMG: undefined,
     bulletImg: undefined,
+	sleepyZ: undefined, //this holds the z sprite for sleepy sloth
     
 	//Sloth Lives
 	slothLives: 3,
@@ -68,6 +69,65 @@ app.main = {
     Particles: undefined,
     particleEmitter: undefined,
     
+	//Sprite constructor
+	sprite: function(options){
+		var sprite = {};
+		
+		sprite.context = options.context;
+		sprite.width = options.width;
+		sprite.height = options.height;
+		sprite.image = options.image;
+		sprite.loop = options.loop;
+		var numOfFrames = options.numOfFrames || 1;
+		
+		//Sprite update variables
+		debugger;
+		var frameIndex = 0; //tells which frame to display
+		var tickCount = 0; //keeps track of ticks
+		 var tickPerFrame = options.tickPerFrame || 0; //controls the fps of the animation
+		
+		//Sprite Render function
+		sprite.render = function(x, y, drawWidth, drawHeight){
+			//draw the sprite animation
+			sprite.context.drawImage(
+				sprite.image,  //Refrence to the spriteSheet
+				frameIndex * sprite.width / numOfFrames,
+				0,
+				sprite.width / numOfFrames, //draw image to the width of one sprite
+				sprite.height, //draw image to the height of one sprite
+				x,
+				y,
+				drawWidth,
+				drawHeight
+			);
+		};
+		
+		
+		
+		//Sprite Update function
+		sprite.update = function(){
+			debugger;
+			tickCount += 1;
+			
+			if(tickCount > tickPerFrame){
+				tickCount = 0;
+				
+				//if current frame index is in range
+				if(frameIndex < numOfFrames -1){
+					//next frame
+					frameIndex += 1;
+				}
+				else if(sprite.loop){
+					frameIndex = 0;
+				}
+			}
+		};
+		
+		return sprite;
+	},
+	
+	zSprite: undefined,
+	
     ///Initialization function
     init: function() {
         this.canvas = document.querySelector("canvas");
@@ -97,6 +157,20 @@ app.main = {
 
 		this.slothHead = new Image();
 		this.slothHead.src = "art/slothHead.png";
+		
+		//Get sleepyZ sprite
+		this.sleepyZ = new Image();
+		this.sleepyZ.src = "art/zSpriteSheet.png";
+		
+		this.zSprite = this.sprite({
+			context: this.ctx,
+			width: 560,
+			height: 133,
+			image: this.sleepyZ,
+			loop: true,
+			numOfFrames: 4,
+			tickPerFrame: 30,
+		});
 		
         //this.makeRocks(); //I'm not sure this needs to be here
         
@@ -141,6 +215,8 @@ app.main = {
 				if(this.slothLives <=0) {
 					this.screenState = this.SCREEN.GAMEOVER;
 				}
+				
+				this.zSprite.update();
 				
 				break;
 				
@@ -207,6 +283,9 @@ app.main = {
                 if (this.particleEmitter != undefined && this.particleEmitter.activated)
                     this.particleEmitter.update(this.ctx);
                 
+				debugger;
+				this.zSprite.render( this.canvas.width/2, this.canvas.height-125, 50, 50);
+				
 				//DRAW HUD
 				this.drawHUD(ctx);
 				break;
@@ -733,7 +812,7 @@ app.main = {
 			450 //yMax for button
 		);
 		
-		debugger;
+		//debugger;
 		var insideCredits = clickedInsideButton(
 			mouse.x, //mouse x pos
 			mouse.y, //mouse y pos
