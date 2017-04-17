@@ -522,12 +522,12 @@ app.main = {
             ctx.font = "16pt Open Sans";
         
 		//DRAW KEVIN CREDIT
-		ctx.drawImage(this.slothHead, this.canvas.width / 8, (this.canvas.height / 4) * 1.5, 50,50);
-		ctx.fillText("KEVIN IDZIK", (this.canvas.width / 8) + 60, (this.canvas.height / 4) * 1.5 + 30);
+		ctx.drawImage(this.slothHead, this.canvas.width / 10, (this.canvas.height / 4) * 1.5, 60, 49);
+		ctx.fillText("KEVIN IDZIK", (this.canvas.width / 10) + 70, (this.canvas.height / 4) * 1.5 + 30);
 		
 		//DRAW JOSH CREDIT
-		ctx.drawImage(this.slothHead, this.canvas.width / 8, (this.canvas.height / 4) * 2, 50,50);
-		ctx.fillText("JOSH MALMQUIST", (this.canvas.width / 8) + 60, (this.canvas.height / 4) * 2 + 30);
+		ctx.drawImage(this.slothHead, this.canvas.width / 10, (this.canvas.height / 4) * 2, 60, 49);
+		ctx.fillText("JOSH MALMQUIST", (this.canvas.width / 10) + 70, (this.canvas.height / 4) * 2 + 30);
 
         //Back button
         ctx.textAlign = "center";
@@ -578,7 +578,7 @@ app.main = {
 		ctx.fillText("LIVES:" ,0,0);
 		
 		for(var s =0; s< this.slothLives; s++){
-			ctx.drawImage(this.slothHead,(s*50)+100,0, 50,50);
+			ctx.drawImage(this.slothHead,(s*50)+100,0, 60, 49);
 		}
         
         //DRAW SCORE
