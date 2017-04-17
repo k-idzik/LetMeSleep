@@ -18,13 +18,12 @@ function clickedInsideSling(x, y, I) {
 }
 
 
-function clickedInsideButton(x, y, xMin, xMax, yMin, yMax){
-	if(xMax > x && x > xMin && yMax > y && y > yMin){
+function clickedInsideButton(x, y, xMin, xMax, yMin, yMax) {
+	if(xMax > x && x > xMin && yMax > y && y > yMin) {
 		return true;
 	}
-	else {
+	else
 		return false;
-	}
 }
 
 /*
@@ -34,6 +33,6 @@ Return Value: the constrained value
 Description: returns a value that is
 constrained between min and max (inclusive) 
 */
-function clamp(val, min, max){
+function clamp(val, min, max) {
 	return Math.max(min, Math.min(max, val));
 }

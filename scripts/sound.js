@@ -3,15 +3,14 @@
 var app = app || {};
 
 app.sound = (function(){
-	debugger;
 	var bgSound = undefined;
 	var efSound = undefined;
-	var effectSounds = ["boom2.wav", "slingshotFire.mp3"];
+	var effectSounds = ["boom2.wav", "slingshotFireShort.mp3"];
 	function init(){
 		bgSound = document.querySelector("#bgSound");
 		bgSound.volume = 0.3;
 		efSound = document.querySelector("#efSound");
-		efSound.volume = 0.5;
+		efSound.volume = 0.4;
 	}
 	
 	function playBGSound(){

@@ -20,7 +20,10 @@ app.main = {
     sloth: undefined,
 	slothHead: undefined,
     slothHeight: 158,
-    rockIMG: undefined,
+    defaultRockImg: undefined,
+    jaugRockImg: undefined,
+    tripleRockImg: undefined,
+    bounceRockImg: undefined,
     bulletImg: undefined,
 	sleepyZ: undefined, //this holds the z sprite for sleepy sloth
     
@@ -54,11 +57,11 @@ app.main = {
     rocks: [],
     ROCK: Object.freeze({
         RADIUS: 15,
-        MIN_RADIUS: 2,
-        MAX_RADIUS: 15,
+        //MIN_RADIUS: 2,
+        //MAX_RADIUS: 15,
         SPEED: 1,
         VALUE: 5,
-        ROCK_ART: this.rockIMG,
+        //ROCK_ART: this.defaultRockImg
     }),
     rockCooldown: 100,
     rockTimer: 0,
@@ -112,8 +115,6 @@ app.main = {
 				drawHeight
 			);
 		};
-		
-		
 		
 		//Sprite Update function
 		sprite.update = function(deltaTime){
@@ -183,6 +184,16 @@ app.main = {
 		this.slothHead = new Image();
 		this.slothHead.src = "art/slothHead.png";
 		
+        //Rock images
+        this.defaultRockImg = new Image();
+        this.defaultRockImg.src = "art/defaultRock.png";
+        this.jaugRockImg = new Image();
+        this.jaugRockImg.src = "art/jaugRock.png";
+        this.tripleRockImg = new Image();
+        this.tripleRockImg.src = "art/tripleRock.png";
+        this.bounceRockImg = new Image();
+        this.bounceRockImg.src = "art/bounceRock.png";
+        
 		//Get sleepyZ sprite
 		this.sleepyZ = new Image();
 		this.sleepyZ.src = "art/zSpriteSheet.png";
@@ -263,7 +274,7 @@ app.main = {
 				//CREDITS UPDATE LOOP
 				break;
 		}
-        
+
         this.draw(this.ctx);
     },
 
@@ -299,7 +310,7 @@ app.main = {
         		for(var i =0; i < this.rocks.length; i++) {
         		    var r = this.rocks[i];
 		
-		            r.draw(ctx);
+		            r.draw(this);
 		        }
 				
 		        for(var i = 0; i < this.bullets.length; i++){
@@ -327,7 +338,7 @@ app.main = {
         		for(var i =0; i < this.rocks.length; i++) {
         		    var r = this.rocks[i];
 		
-		            r.draw(ctx);
+		            r.draw(this);
 		        }
 				
 		        for(var i = 0; i < this.bullets.length; i++){
@@ -350,7 +361,7 @@ app.main = {
         		for(var i =0; i < this.rocks.length; i++) {
         		    var r = this.rocks[i];
 		
-		            r.draw(ctx);
+		            r.draw(this);
 		        }
 				
 		        for(var i = 0; i < this.bullets.length; i++){
@@ -388,13 +399,13 @@ app.main = {
     },
 
 	//START GAME METHOD
-	startGame: function() {
-		
+	startGame: function() {	
 		//Set the clickpoint coordinates
         this.clickpoint.defaultX = this.clickpoint.x = this.canvas.width / 2;
         this.clickpoint.defaultY = this.clickpoint.y = this.canvas.height - 220;      
         
         //Hook up events
+        this.canvas.onmouseover = undefined;
         this.canvas.onmousedown = this.clickedSlingShot.bind(this);  
         this.canvas.onmouseup = this.clickedSlingShot.bind(this);
         this.canvas.onmousemove = this.moveSlingShot.bind(this);
@@ -674,20 +685,21 @@ app.main = {
     
     ///Makes rocks
     makeRocks: function() {
-        var Rock_Draw = function(ctx) {
+        var Rock_Draw = function(appRef) {
             //draw rock to canvas
-            ctx.save();
-
-            ctx.strokeStyle = "black";
-            ctx.fillStyle = "gray";
-
-            ctx.beginPath();
-            ctx.arc(this.x, this.y, this.radius, 0, Math.PI*2);
-            ctx.stroke();
-            ctx.fill();
-            ctx.closePath();
-
-            ctx.restore();
+            appRef.ctx.drawImage(appRef.defaultRockImg, this.x - 15, this.y - 15, 30, 30);
+//            ctx.save();
+//
+//            ctx.strokeStyle = "black";
+//            ctx.fillStyle = "gray";
+//
+//            ctx.beginPath();
+//            ctx.arc(this.x, this.y, this.radius, 0, Math.PI*2);
+//            ctx.stroke();
+//            ctx.fill();
+//            ctx.closePath();
+//
+//            ctx.restore();
         };
 
         var Rock_Update = function(appRef) {
@@ -739,12 +751,11 @@ app.main = {
             if (this.round >= 15)
                 var weightRandom = Math.floor(Math.random() * 100); //0-99
             else if (this.round >= 10)
-                var weightRandom = Math.floor(Math.random() * 96); //0-95
+                var weightRandom = Math.floor(Math.random() * 95); //0-94
             else if (this.round >= 5)
-                var weightRandom = Math.floor(Math.random() * 86); //0-85
+                var weightRandom = Math.floor(Math.random() * 85); //0-84
             else
-                var weightRandom = Math.floor(Math.random() * 66); //0-65
-            
+                var weightRandom = Math.floor(Math.random() * 65); //0-64
             
             if (weightRandom >= 0 && weightRandom < 65)
                 r.speed = this.ROCK.SPEED;
@@ -897,17 +908,14 @@ app.main = {
 		);
 		
 		if(insideStart){
-		    console.log("Start clicked");
 			this.startGame();
 		}
 		else if(insideInstruct){
-			console.log("instruct clicked");
 			this.switchInstruct();
 		}
 		else if(insideCredits){
 			this.switchCredits();
-		}
-		
+		}	
 	},
 	
 	//Credit Clicked Function
@@ -923,17 +931,16 @@ app.main = {
 			(this.canvas.height / 4) * 2.75 + 50//yMax for button
 		);
 		
-		if(insideBack){
+		if(insideBack) {
 			this.canvas.onmousedown = this.mainMenuClicked.bind(this);  
 			this.screenState = this.SCREEN.MAIN;
 		}
-		
 	},
 		   
    	///When the slingshot is clicked on
    	clickedSlingShot: function(e) {
         //If the game is not paused
-        if (this.screenState != this.SCREEN.PAUSED) {
+        if (this.screenState != this.SCREEN.PAUSED) {            
             var mouse = getMouse(e); //Get the position of the mouse on the canvas
             var defaultPoint = new Victor(this.clickpoint.defaultX, this.clickpoint.defaultY);
             var movedPoint = new Victor(this.clickpoint.x, this.clickpoint.y);
@@ -941,10 +948,14 @@ app.main = {
 			if(this.screenState == this.SCREEN.GAMEOVER) {
 				this.resetGame();
 			}
+            
             //Check event type and set if the clickpoint is being used
-            if (e.type == "mousedown" && clickedInsideSling(mouse.x, mouse.y, this.clickpoint) && defaultPoint.distance(movedPoint) < 1)
+            if (e.type == "mousedown" && clickedInsideSling(mouse.x, mouse.y, this.clickpoint) && defaultPoint.distance(movedPoint) < 1) {
+                document.querySelector("canvas").style.cursor = "crosshair";
                 this.clickpoint.mouseClicked = true;
+            }
             else if (e.type == "mouseup") {
+                document.querySelector("canvas").style.cursor = "default";
                 this.clickpoint.mouseClicked = false; //The mouse is not being clicked
                 this.clickpoint.previousMouseClicked = true; //The mouse was previously clicked
             }
@@ -954,17 +965,20 @@ app.main = {
    	//When the slingshot is moved
    	moveSlingShot: function(e) {
    	    //If the mouse if being clicked and the game is not paused, allow the slingshot to be used
-   	    if (this.clickpoint.mouseClicked && this.screenState != this.SCREEN.PAUSED) {
-            //Make vectors to limit the distance the slingshot can move
-            var defaultPoint = new Victor(this.clickpoint.defaultX, this.clickpoint.defaultY);
-            var movedPoint = new Victor(this.clickpoint.x, this.clickpoint.y);
+   	    if (this.clickpoint.mouseClicked && this.screenState != this.SCREEN.PAUSED) {                            
+            var mouse = getMouse(e); //Get the position of the mouse on the canvas
+            var distanceVector = new Victor(mouse.x - this.clickpoint.defaultX, mouse.y - this.clickpoint.defaultY); //Make a distance vector to limit the distance the slingshot can move
             
-            //Limit the distance the slingshot can move
-            if (defaultPoint.distance(movedPoint) < 100) {
-                var mouse = getMouse(e); //Get the position of the mouse on the canvas
+            //If the distance is short enough, calculate position normally
+            if (distanceVector.magnitude() < 100) {
+                this.clickpoint.x = this.clickpoint.defaultX + distanceVector.x;
+                this.clickpoint.y = this.clickpoint.defaultY + distanceVector.y;
+            }
+            else { //Clamp the magnitude the hard way
+                var angle = Math.atan2(distanceVector.y, distanceVector.x);
 
-                this.clickpoint.x = mouse.x;
-                this.clickpoint.y = mouse.y;
+                this.clickpoint.x = this.clickpoint.defaultX + (Math.cos(angle) * 100);
+                this.clickpoint.y = this.clickpoint.defaultY + (Math.sin(angle) * 100);
             }
    	    }
    	},
@@ -983,9 +997,9 @@ app.main = {
             
             //Fire a bullet if the slingshot has moved far enough
             if (this.clickpoint.previousMouseClicked && defaultPoint.distance(movedPoint) > 5) {
+                this.sound.playEffect(1);
                 this.makeBullet(this.clickpoint.x, this.clickpoint.y, Victor(movedPoint.x - defaultPoint.x, movedPoint.y - defaultPoint.y), defaultPoint.distance(movedPoint) / 10); //Make a bullet
                 this.clickpoint.previousMouseClicked = false;
-				this.sound.playEffect(1);
             }
         }
    	},
