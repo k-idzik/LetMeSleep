@@ -9,7 +9,8 @@ app.main = {
     ctx: undefined,
     animationID: 0,
     score: 0,
-    
+	lastTime:0,
+    deltaTime: 0,
     //Images
     sloth: undefined,
 	slothHead: undefined,
@@ -105,8 +106,8 @@ app.main = {
 		
 		
 		//Sprite Update function
-		sprite.update = function(){
-			tickCount += 1;
+		sprite.update = function(deltaTime){
+			tickCount += 4 * deltaTime;
 			
 			if(tickCount > tickPerFrame){
 				tickCount = 0;
@@ -145,7 +146,8 @@ app.main = {
         ////Set the clickpoint coordinates
         //this.clickpoint.defaultX = this.clickpoint.x = this.canvas.width / 2;
         //this.clickpoint.defaultY = this.clickpoint.y = this.canvas.height - 220;      
-        
+        this.deltaTime = this.calculateDeltaTime();
+		
         //Hook up events
         this.canvas.onmousedown = this.mainMenuClicked.bind(this);  
         //this.canvas.onmouseup = this.clickedSlingShot.bind(this);
@@ -169,7 +171,7 @@ app.main = {
 			image: this.sleepyZ,
 			loop: true,
 			numOfFrames: 4,
-			tickPerFrame: 30,
+			tickPerFrame: 1,
 		});
 		
         //this.makeRocks(); //I'm not sure this needs to be here
@@ -182,6 +184,8 @@ app.main = {
         //Update the animation frame 60 times a second, binding it to call itself
         this.animationID = requestAnimationFrame(this.update.bind(this));
         
+		this.deltaTime = this.calculateDeltaTime();
+		
 		switch(this.screenState) {
             case this.SCREEN.MAIN:
 				//MAIN MENU Update LOOP
@@ -215,8 +219,8 @@ app.main = {
 				if(this.slothLives <=0) {
 					this.screenState = this.SCREEN.GAMEOVER;
 				}
-				
-				this.zSprite.update();
+				debugger;
+				this.zSprite.update(this.deltaTime);
 				
 				break;
 				
@@ -939,5 +943,14 @@ app.main = {
                 this.clickpoint.previousMouseClicked = false;
             }
         }
-   	}
+   	},
+	
+	calculateDeltaTime: function(){
+		var now,fps;
+		now = performance.now(); 
+		fps = 1000 / (now - this.lastTime);
+		fps = clamp(fps, 12, 60);
+		this.lastTime = now; 
+		return 1/fps;
+	}
 };
