@@ -951,20 +951,17 @@ app.main = {
             var mouse = getMouse(e); //Get the position of the mouse on the canvas
             var distanceVector = new Victor(mouse.x - this.clickpoint.defaultX, mouse.y - this.clickpoint.defaultY); //Make a distance vector to limit the distance the slingshot can move
             
-            distanceVector.x = clamp(distanceVector.x, -100, 100); 
-            distanceVector.y = clamp(distanceVector.y, -100, 100);
-            
-            this.clickpoint.x = this.clickpoint.defaultX + distanceVector.x;
-            this.clickpoint.y = this.clickpoint.defaultY + distanceVector.y;
-            
-            //Circle stuff that doesn't quite work
-            //distanceVector.x = clamp(distanceVector.x, -100, 100);
-            //distanceVector.y = clamp(distanceVector.y, -100, 100);
-            //
-            //var angle = Math.atan2(distanceVector.y, distanceVector.x);
-            //
-            //this.clickpoint.x = this.clickpoint.defaultX + (Math.cos(angle) * distanceVector.x);
-            //this.clickpoint.y = this.clickpoint.defaultY + (Math.sin(angle) * distanceVector.y);
+            //If the distance is short enough, calculate position normally
+            if (distanceVector.magnitude() < 100) {
+                this.clickpoint.x = this.clickpoint.defaultX + distanceVector.x;
+                this.clickpoint.y = this.clickpoint.defaultY + distanceVector.y;
+            }
+            else { //Clamp the magnitude the hard way
+                var angle = Math.atan2(distanceVector.y, distanceVector.x);
+
+                this.clickpoint.x = this.clickpoint.defaultX + (Math.cos(angle) * 100);
+                this.clickpoint.y = this.clickpoint.defaultY + (Math.sin(angle) * 100);
+            }
    	    }
    	},
     
