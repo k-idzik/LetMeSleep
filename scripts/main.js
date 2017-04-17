@@ -4,13 +4,17 @@
 var app = app || {};
 
 app.main = {
-    //Canvas
+    //modules
+	sound: undefined,
+	
+	//Canvas
     canvas: undefined,
     ctx: undefined,
     animationID: 0,
     score: 0,
 	lastTime:0,
     deltaTime: 0,
+	
     //Images
     sloth: undefined,
 	slothHead: undefined,
@@ -156,6 +160,8 @@ app.main = {
         //Hook up events
         this.canvas.onmousedown = this.mainMenuClicked.bind(this);  
         
+		this.sound.playBGSound();
+		
         //get sloth Image
         this.sloth = new Image();
         this.sloth.src = "art/SleepingSloth.png";
@@ -800,6 +806,9 @@ app.main = {
                     //Bullet is colliding with rock                    
                     appRef.score += appRef.rocks[i].value;
                     
+					//play rock destroy effect
+					appRef.sound.playEffect(0);
+					
                     //Initialize particles
                     appRef.particleEmitter = new appRef.Particles();
                     appRef.particleEmitter.initialize(appRef.rocks[i].x, appRef.rocks[i].y);
@@ -958,6 +967,7 @@ app.main = {
             if (this.clickpoint.previousMouseClicked && defaultPoint.distance(movedPoint) > 5) {
                 this.makeBullet(this.clickpoint.x, this.clickpoint.y, Victor(movedPoint.x - defaultPoint.x, movedPoint.y - defaultPoint.y), defaultPoint.distance(movedPoint) / 10); //Make a bullet
                 this.clickpoint.previousMouseClicked = false;
+				this.sound.playEffect(1);
             }
         }
    	},
