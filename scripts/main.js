@@ -370,13 +370,13 @@ app.main = {
     },
 
 	//START GAME METHOD
-	startGame: function() {
-		
+	startGame: function() {	
 		//Set the clickpoint coordinates
         this.clickpoint.defaultX = this.clickpoint.x = this.canvas.width / 2;
         this.clickpoint.defaultY = this.clickpoint.y = this.canvas.height - 220;      
         
         //Hook up events
+        this.canvas.onmouseover = undefined;
         this.canvas.onmousedown = this.clickedSlingShot.bind(this);  
         this.canvas.onmouseup = this.clickedSlingShot.bind(this);
         this.canvas.onmousemove = this.moveSlingShot.bind(this);
@@ -879,17 +879,14 @@ app.main = {
 		);
 		
 		if(insideStart){
-		    console.log("Start clicked");
 			this.startGame();
 		}
 		else if(insideInstruct){
-			console.log("instruct clicked");
 			this.switchInstruct();
 		}
 		else if(insideCredits){
 			this.switchCredits();
-		}
-		
+		}	
 	},
 	
 	//Credit Clicked Function
@@ -905,17 +902,16 @@ app.main = {
 			(this.canvas.height / 4) * 2.75 + 50//yMax for button
 		);
 		
-		if(insideBack){
+		if(insideBack) {
 			this.canvas.onmousedown = this.mainMenuClicked.bind(this);  
 			this.screenState = this.SCREEN.MAIN;
 		}
-		
 	},
 		   
    	///When the slingshot is clicked on
    	clickedSlingShot: function(e) {
         //If the game is not paused
-        if (this.screenState != this.SCREEN.PAUSED) {
+        if (this.screenState != this.SCREEN.PAUSED) {            
             var mouse = getMouse(e); //Get the position of the mouse on the canvas
             var defaultPoint = new Victor(this.clickpoint.defaultX, this.clickpoint.defaultY);
             var movedPoint = new Victor(this.clickpoint.x, this.clickpoint.y);
@@ -923,10 +919,14 @@ app.main = {
 			if(this.screenState == this.SCREEN.GAMEOVER) {
 				this.resetGame();
 			}
+            
             //Check event type and set if the clickpoint is being used
-            if (e.type == "mousedown" && clickedInsideSling(mouse.x, mouse.y, this.clickpoint) && defaultPoint.distance(movedPoint) < 1)
+            if (e.type == "mousedown" && clickedInsideSling(mouse.x, mouse.y, this.clickpoint) && defaultPoint.distance(movedPoint) < 1) {
+                document.querySelector("canvas").style.cursor = "crosshair";
                 this.clickpoint.mouseClicked = true;
+            }
             else if (e.type == "mouseup") {
+                document.querySelector("canvas").style.cursor = "default";
                 this.clickpoint.mouseClicked = false; //The mouse is not being clicked
                 this.clickpoint.previousMouseClicked = true; //The mouse was previously clicked
             }
@@ -965,9 +965,9 @@ app.main = {
             
             //Fire a bullet if the slingshot has moved far enough
             if (this.clickpoint.previousMouseClicked && defaultPoint.distance(movedPoint) > 5) {
+                this.sound.playEffect(1);
                 this.makeBullet(this.clickpoint.x, this.clickpoint.y, Victor(movedPoint.x - defaultPoint.x, movedPoint.y - defaultPoint.y), defaultPoint.distance(movedPoint) / 10); //Make a bullet
                 this.clickpoint.previousMouseClicked = false;
-				this.sound.playEffect(1);
             }
         }
    	},
