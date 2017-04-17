@@ -151,6 +151,8 @@ app.main = {
 	},
 	
 	highScores: [],
+	checkScore: true,
+	newHighScore: false,
 	
     ///Initialization function
     init: function() {
@@ -210,7 +212,7 @@ app.main = {
         
 		//populate highScore array
 		for(var i = 0; i < 3; i++){
-			this.highScores.push(this.PLAYER);
+			this.highScores.push(this.PLAYER());
 		}
         this.update(); //Start the animation loop
     },
@@ -254,6 +256,7 @@ app.main = {
 				
 				if(this.slothLives <=0) {
 					this.screenState = this.SCREEN.GAMEOVER;
+					window.onkeydown = this.keys.gameOverKeydown;
 				}
 
 				this.zSprite.update(this.deltaTime);
@@ -267,9 +270,17 @@ app.main = {
 				
 			case this.SCREEN.GAMEOVER:
 				//GAME OVER UPDATE LOOP
+				//get highscores
+				var scores = this.getHighScores();
 				
+				
+				//if this is the first round through the game over update and check to see if score is a new highscore
+				if(this.checkScore && (this.score > scores[2].score)){
+					this.newHighScore = true;
+				}
+				this.checkScore = false;
 				break;
-			
+				
 			case this.SCREEN.CREDITS:
 				//CREDITS UPDATE LOOP
 				break;
@@ -371,7 +382,11 @@ app.main = {
 		        }
 				//DRAW HUD
 				this.drawHUD(ctx);
-				this.drawGameOverScreen(ctx);
+				
+				//get highscores
+				var scores = this.getHighScores();
+				
+				this.drawGameOverScreen(ctx, scores);
 				break;
 				
 			case this.SCREEN.CREDITS:
@@ -422,7 +437,8 @@ app.main = {
         this.maxRocks = 5;
         this.rocksMade = 0;
         this.bullets = [];
-		
+		this.checkScore = true;
+		window.onkeydown = null;
 		this.screenState = this.SCREEN.MAIN;
 		this.canvas.onmousedown = this.mainMenuClicked.bind(this);
 	},
@@ -622,7 +638,7 @@ app.main = {
 		ctx.restore();
 	},
 	
-	drawGameOverScreen: function(ctx){
+	drawGameOverScreen: function(ctx, scores){
 		ctx.save(); //Save the current state of the canvas
 
         //Obscure the game
@@ -636,13 +652,48 @@ app.main = {
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
 
+		
         //Draw text
         ctx.font = "40pt Open Sans";
         ctx.fillStyle = "white";
         ctx.fillText("GAME OVER", 0, 0);
 
-        ctx.font = "12pt Open Sans";
-        ctx.fillText("Click to play again!", 0, 40);
+		if(this.newHighScore){
+			ctx.font = "40pt Open Sans";
+        	ctx.fillStyle = "white";
+        	ctx.fillText("New Highscore", 0, 70);
+			
+			ctx.font = "30pt Open Sans";
+			
+			var intials = [];
+			for(var i =0; i < this.keys.pName.length; i++){
+				intials.push(this.keys.pName[i]);
+			}
+			
+			while(intials.length != 3){
+				intials.push("_");
+			}
+			
+			ctx.fillText("Name: " + intials[0] + " " + intials[1] + " " + intials[2], 0, 130);
+			
+			ctx.fillText("Press Shift&Enter", 0, 200);
+			ctx.fillText(" to confirm name" , 0, 240);
+		}
+		else{
+			//Draw leaderboard
+			ctx.font = "40pt Open Sans";
+        	ctx.fillStyle = "white";
+        	ctx.fillText("LeaderBoard", 0, 70);
+			
+			ctx.font = " 20pt Open Sans";
+			//draw scores
+			for(var p = 0; p < 3; p++){
+				ctx.fillText("Name: " + scores[p].name + " Score: " + scores[p].score, 0, 120 + (40*p));
+			}
+			ctx.font = "12pt Open Sans";
+        	ctx.fillText("Click to play again!", 0, 300);
+		}
+        
         
         ctx.restore(); //Restore the canvas state to what it was before drawing the pause screen
 	},
@@ -876,6 +927,7 @@ app.main = {
         
     },
    
+	
 	//MAIN MENU CLICKED FUNCTION
 	mainMenuClicked: function(e) {
 		var mouse = getMouse(e);
@@ -945,7 +997,7 @@ app.main = {
             var defaultPoint = new Victor(this.clickpoint.defaultX, this.clickpoint.defaultY);
             var movedPoint = new Victor(this.clickpoint.x, this.clickpoint.y);
             
-			if(this.screenState == this.SCREEN.GAMEOVER) {
+			if(this.screenState == this.SCREEN.GAMEOVER && !this.checkScore && !this.newHighScore) {
 				this.resetGame();
 			}
             
@@ -1011,5 +1063,39 @@ app.main = {
 		fps = clamp(fps, 12, 60);
 		this.lastTime = now; 
 		return 1/fps;
+	},
+	
+	//Gets the top 3 scores for the game
+	getHighScores: function(){
+		var hs1 = this.PLAYER();
+		var hs2 = this.PLAYER(); 
+		var hs3 = this.PLAYER();
+		
+		for(var i =0; i < this.highScores.length; i++){
+			if(this.highScores[i].score > hs1.score){
+				//move highscores down in rank
+				hs3 = hs2;
+				hs2 = hs1;
+				
+				//set rank 1 highscore to this highscore
+				hs1 = this.highScores[i];
+			}
+			else if(this.highScores[i].score > hs2.score){
+				//move highscores  down in rank
+				hs3 = hs2;
+				
+				//set rank 2 highscore to this highscore
+				hs2 = this.highScores[i];
+			}
+			else if(this.highScores[i].score > hs3.score){
+				hs3 = this.highScores[i];
+			}
+		}
+		
+		var hs = [];
+		hs.push(hs1);
+		hs.push(hs2);
+		hs.push(hs3);
+		return hs;
 	}
 };
