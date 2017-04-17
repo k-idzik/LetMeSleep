@@ -220,7 +220,7 @@ app.main = {
 				if(this.slothLives <=0) {
 					this.screenState = this.SCREEN.GAMEOVER;
 				}
-				debugger;
+
 				this.zSprite.update(this.deltaTime);
 				
 				break;
@@ -382,6 +382,11 @@ app.main = {
 	resetGame: function(){
 		this.slothLives = 3;
 		this.score = 0;
+        this.rocks = [];
+        this.round = 1;
+        this.maxRocks = 5;
+        this.rocksMade = 0;
+        this.bullets = [];
 		
 		this.screenState = this.SCREEN.MAIN;
 		this.canvas.onmousedown = this.mainMenuClicked.bind(this);
@@ -707,7 +712,16 @@ app.main = {
             r.radius = this.ROCK.RADIUS;
             
             //Give the rock some variance in speed
-            var weightRandom = Math.floor(Math.random() * 100); //0-99
+            if (this.round >= 15)
+                var weightRandom = Math.floor(Math.random() * 100); //0-99
+            else if (this.round >= 10)
+                var weightRandom = Math.floor(Math.random() * 96); //0-95
+            else if (this.round >= 5)
+                var weightRandom = Math.floor(Math.random() * 86); //0-85
+            else
+                var weightRandom = Math.floor(Math.random() * 66); //0-65
+            
+            
             if (weightRandom >= 0 && weightRandom < 65)
                 r.speed = this.ROCK.SPEED;
             else if (weightRandom >= 65 && weightRandom < 85)
@@ -746,18 +760,10 @@ app.main = {
         var BULLET_UPDATE = function(appRef) {
             direction.normalize();
             
-            //this.x -= direction.x * this.speed;
-            //this.y -= direction.y * this.speed;
-            
             //Use the speed passed in through the method
             //More speed references may need to be updated later
             this.x -= direction.x * speed;
             this.y -= direction.y * speed;
-            
-            //TO BE REPLACED WITH SLING SHOT DETERMINING SPEED
-            //this.x += this.speed;
-            //this.y -= this.speed;
-            //////////////////////////////////////////////////
             
             this.CollisionDetection(appRef);
             
@@ -906,10 +912,6 @@ app.main = {
             var movedPoint = new Victor(this.clickpoint.x, this.clickpoint.y);
             
 			if(this.screenState == this.SCREEN.GAMEOVER) {
-                this.rocks = [];
-                this.round = 1;
-                this.maxRocks = 5;
-                this.rocksMade = 0;
 				this.resetGame();
 			}
             //Check event type and set if the clickpoint is being used
