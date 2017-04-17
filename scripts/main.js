@@ -13,7 +13,7 @@ app.main = {
     //Images
     sloth: undefined,
 	slothHead: undefined,
-    slothHeight: 156,
+    slothHeight: 158,
     rockIMG: undefined,
     bulletImg: undefined,
 	sleepyZ: undefined, //this holds the z sprite for sleepy sloth
@@ -137,7 +137,7 @@ app.main = {
         if (window.outerHeight <= 768) {
             this.canvas.setAttribute("height", "576");
             this.canvas.setAttribute("width", "324px");
-            this.slothHeight = 112;
+            this.slothHeight = 114;
         }
         
         this.ctx = canvas.getContext("2d");
