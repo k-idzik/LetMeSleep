@@ -13,6 +13,7 @@ app.main = {
     //Images
     sloth: undefined,
 	slothHead: undefined,
+    slothHeight: 156,
     rockIMG: undefined,
     bulletImg: undefined,
 	sleepyZ: undefined, //this holds the z sprite for sleepy sloth
@@ -136,6 +137,7 @@ app.main = {
         if (window.outerHeight <= 768) {
             this.canvas.setAttribute("height", "576");
             this.canvas.setAttribute("width", "324px");
+            this.slothHeight = 112;
         }
         
         this.ctx = canvas.getContext("2d");
@@ -263,7 +265,7 @@ app.main = {
 			case this.SCREEN.GAME:
 				//GAME DRAW LOOP
 				//Draws the sloth
-        		ctx.drawImage(this.sloth, 0,this.canvas.height-100, this.canvas.width, 100); 
+        		ctx.drawImage(this.sloth, 0, this.canvas.height - this.slothHeight, this.canvas.width, this.slothHeight); 
         		
         		this.drawSlingShot(ctx); //Draw the slingshot
         		
@@ -292,7 +294,7 @@ app.main = {
 				
 			case this.SCREEN.PAUSED:
 				//PAUSE DRAW LOOP
-				ctx.drawImage(this.sloth, 0,this.canvas.height-100, this.canvas.width, 100); 
+				ctx.drawImage(this.sloth, 0, this.canvas.height - this.slothHeight, this.canvas.width, this.slothHeight); 
         		        
         		this.drawSlingShot(ctx); //Draw the slingshot
         		
@@ -315,7 +317,7 @@ app.main = {
 				
 			case this.SCREEN.GAMEOVER:
 				//GAME OVER DRAW LOOP
-				ctx.drawImage(this.sloth, 0,this.canvas.height-100, this.canvas.width, 100); 
+				ctx.drawImage(this.sloth, 0, this.canvas.height - this.slothHeight, this.canvas.width, this.slothHeight); 
         		  
         		this.drawSlingShot(ctx); //Draw the slingshot
         		
@@ -412,8 +414,8 @@ app.main = {
 		ctx.save();	
         
 		//Draw Sleeping Sloths
-		ctx.drawImage(this.sloth, 0, 0, this.canvas.width, 100);
-        ctx.drawImage(this.sloth, 0, this.canvas.height - 100, this.canvas.width, 100); 
+		ctx.drawImage(this.sloth, 0, 0, this.canvas.width, this.slothHeight);
+        ctx.drawImage(this.sloth, 0, this.canvas.height - this.slothHeight, this.canvas.width, this.slothHeight); 
 		
 		//Draw TITLE
 		ctx.textAlign = "center";
@@ -462,8 +464,8 @@ app.main = {
 		ctx.save();	
 		
 		//Draw Sleeping Sloths
-		ctx.drawImage(this.sloth, 0, 0, this.canvas.width, 100);
-        ctx.drawImage(this.sloth, 0, this.canvas.height - 100, this.canvas.width, 100); 
+		ctx.drawImage(this.sloth, 0, 0, this.canvas.width, this.slothHeight);
+        ctx.drawImage(this.sloth, 0, this.canvas.height - this.slothHeight, this.canvas.width, this.slothHeight); 
 		
 		//Draw TITLE
 		ctx.textAlign = "center";
@@ -495,8 +497,8 @@ app.main = {
 		ctx.save();	
 		
 		//Draw Sleeping Sloths
-		ctx.drawImage(this.sloth, 0, 0, this.canvas.width, 100);
-        ctx.drawImage(this.sloth, 0, this.canvas.height - 100, this.canvas.width, 100); 
+		ctx.drawImage(this.sloth, 0, 0, this.canvas.width, this.slothHeight);
+        ctx.drawImage(this.sloth, 0, this.canvas.height - this.slothHeight, this.canvas.width, this.slothHeight); 
 		
 		//Draw TITLE
 		ctx.textAlign = "center";
