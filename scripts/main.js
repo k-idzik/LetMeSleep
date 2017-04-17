@@ -67,8 +67,13 @@ app.main = {
         BULLET_ART: this.bulletImg,
     }),
     
+    //Particles
     Particles: undefined,
     particleEmitter: undefined,
+    
+    //Game round
+    round: 1,
+    rocksMade: 0,
     
 	//Sprite constructor
 	sprite: function(options){
@@ -140,16 +145,10 @@ app.main = {
         
         this.ctx = canvas.getContext("2d");
 
-		this.screenState = this.SCREEN.MAIN;
-		
-        ////Set the clickpoint coordinates
-        //this.clickpoint.defaultX = this.clickpoint.x = this.canvas.width / 2;
-        //this.clickpoint.defaultY = this.clickpoint.y = this.canvas.height - 220;      
+		this.screenState = this.SCREEN.MAIN; 
         
         //Hook up events
         this.canvas.onmousedown = this.mainMenuClicked.bind(this);  
-        //this.canvas.onmouseup = this.clickedSlingShot.bind(this);
-        //this.canvas.onmousemove = this.moveSlingShot.bind(this);
         
         //get sloth Image
         this.sloth = new Image();
@@ -171,8 +170,6 @@ app.main = {
 			numOfFrames: 4,
 			tickPerFrame: 30,
 		});
-		
-        //this.makeRocks(); //I'm not sure this needs to be here
         
         this.update(); //Start the animation loop
     },
@@ -661,10 +658,10 @@ app.main = {
             this.y += this.speed;
 
 			//rock has hit sloth
-            if(this.y > appRef.canvas.height-100){
+            if(this.y > appRef.canvas.height-100) {                
                 //remove from rocks array
                 for(var i =0; i < appRef.rocks.length; i++) {
-                    if(appRef.rocks[i] == this){
+                    if(appRef.rocks[i] == this) {
                         appRef.rocks.splice(i, 1);
 						appRef.slothLives--;
                         break;
@@ -673,7 +670,7 @@ app.main = {
             }
         };
 
-        if(this.rocks.length == 0) {
+        if (this.rocks.length == 0 && this.rocksMade < this.maxRocks) {
             var r = {};
 
             r.x = Math.floor((Math.random()*this.canvas.width) + 1);
@@ -690,8 +687,10 @@ app.main = {
             Object.seal(r);
             this.rocks.push(r);
             this.rockTimer = 0;
+            
+            this.rocksMade++; //Increment the number of rocks made this round
         }
-        else if(this.rockTimer > this.rockCooldown && this.rocks.length < this.maxRocks) {
+        else if (this.rockTimer > this.rockCooldown && this.rocks.length < this.maxRocks && this.rocksMade < this.maxRocks) {
             var r = {};
 
             r.x = Math.floor((Math.random()*this.canvas.width) + 1);
@@ -719,9 +718,18 @@ app.main = {
             this.rocks.push(r);
 
             this.rockTimer = 0;
+            
+            this.rocksMade++; //Increment the number of rocks made this round
         }
         else {
             this.rockTimer++;
+        }
+        
+        //If the round is over, make new rocks
+        if (this.rocks.length == 0 && this.rocksMade == this.maxRocks) {
+            this.round++;
+            this.rocksMade = 0;
+            this.maxRocks += Math.floor(Math.sqrt(this.maxRocks / 1.3));
         }
     },
 	
@@ -891,6 +899,9 @@ app.main = {
             
 			if(this.screenState == this.SCREEN.GAMEOVER) {
                 this.rocks = [];
+                this.round = 1;
+                this.maxRocks = 5;
+                this.rocksMade = 0;
 				this.resetGame();
 			}
             //Check event type and set if the clickpoint is being used
