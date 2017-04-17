@@ -93,21 +93,21 @@ app.main = {
 		sprite.height = options.height;
 		sprite.image = options.image;
 		sprite.loop = options.loop;
-		var numOfFrames = options.numOfFrames || 1;
-		
+		sprite.numOfFrames = options.numOfFrames || 1;
+        
 		//Sprite update variables
 		var frameIndex = 0; //tells which frame to display
 		var tickCount = 0; //keeps track of ticks
-		 var tickPerFrame = options.tickPerFrame || 0; //controls the fps of the animation
+		var tickPerFrame = options.tickPerFrame || 0; //controls the fps of the animation
 		
 		//Sprite Render function
-		sprite.render = function(x, y, drawWidth, drawHeight){
+		sprite.render = function(x, y, drawWidth, drawHeight, appRef){
 			//draw the sprite animation
 			sprite.context.drawImage(
 				sprite.image,  //Refrence to the spriteSheet
-				frameIndex * sprite.width / numOfFrames,
+				frameIndex * (sprite.width - (140 * (4 - sprite.numOfFrames))) / sprite.numOfFrames,
 				0,
-				sprite.width / numOfFrames, //draw image to the width of one sprite
+				sprite.width / 4, //draw image to the width of one sprite
 				sprite.height, //draw image to the height of one sprite
 				x,
 				y,
@@ -115,7 +115,7 @@ app.main = {
 				drawHeight
 			);
 		};
-		
+        
 		//Sprite Update function
 		sprite.update = function(deltaTime){
 			tickCount += 4 * deltaTime;
@@ -124,7 +124,7 @@ app.main = {
 				tickCount = 0;
 				
 				//if current frame index is in range
-				if(frameIndex < numOfFrames -1){
+				if(frameIndex < sprite.numOfFrames -1){
 					//next frame
 					frameIndex += 1;
 				}
@@ -205,7 +205,7 @@ app.main = {
 			image: this.sleepyZ,
 			loop: true,
 			numOfFrames: 4,
-			tickPerFrame: 1,
+			tickPerFrame: 1
 		});
         
 		//populate highScore array
@@ -303,7 +303,7 @@ app.main = {
 			case this.SCREEN.GAME:
 				//GAME DRAW LOOP
 				//Draws the sloth
-        		ctx.drawImage(this.sloth, 0, this.canvas.height - this.slothHeight, this.canvas.width, this.slothHeight); 
+        		ctx.drawImage(this.sloth, 0, this.canvas.height - this.slothHeight, this.canvas.width, this.slothHeight);
         		
         		this.drawSlingShot(ctx); //Draw the slingshot
         		
@@ -323,7 +323,7 @@ app.main = {
                 if (this.particleEmitter != undefined && this.particleEmitter.activated)
                     this.particleEmitter.update(this.ctx);
                 
-				this.zSprite.render( this.canvas.width/2, this.canvas.height-125, 50, 50);
+				this.zSprite.render(this.canvas.width/2, this.canvas.height-125, 50, 50, this);
 				
 				//DRAW HUD
 				this.drawHUD(ctx);
@@ -422,6 +422,8 @@ app.main = {
         this.maxRocks = 5;
         this.rocksMade = 0;
         this.bullets = [];
+        this.zSprite.numOfFrames = 4;
+        this.zSprite.width = 560;
 		
 		this.screenState = this.SCREEN.MAIN;
 		this.canvas.onmousedown = this.mainMenuClicked.bind(this);
@@ -519,7 +521,6 @@ app.main = {
 		ctx.fillStyle = 'black';
 		ctx.font = "20pt Open Sans";
 		ctx.fillText("BACK", this.canvas.width/2, (this.canvas.height / 4) * 2.75 + 30);
-		
 
 		ctx.restore();
 	},
@@ -605,20 +606,14 @@ app.main = {
 	//draws HUD
 	drawHUD: function(ctx){
 		ctx.save();
-        //DRAW LIVES
-		ctx.textAlign = "left";
-        ctx.textBaseline = "top";
-		ctx.font = "24pt Open Sans";
-		ctx.fillStyle = 'black';
-		ctx.fillText("LIVES:" ,0,0);
-		
-		for(var s =0; s< this.slothLives; s++){
-			ctx.drawImage(this.slothHead,(s*50)+100,0, 60, 49);
-		}
         
         //DRAW SCORE
-        ctx.textAlign = "right";
-        ctx.fillText("Score: " + this.score,this.canvas.width, 0);
+		ctx.textAlign = "center";
+        ctx.textBaseline = "top";
+		ctx.font = "24pt Open Sans";
+		ctx.fillStyle = "black";
+        ctx.fillText("Score: " + this.score, this.canvas.width / 2, 0);
+        
 		ctx.restore();
 	},
 	
@@ -713,6 +708,7 @@ app.main = {
                     if(appRef.rocks[i] == this) {
                         appRef.rocks.splice(i, 1);
 						appRef.slothLives--;
+                        appRef.zSprite.numOfFrames--;
                         break;
                     }
                 }
@@ -739,7 +735,7 @@ app.main = {
             
             this.rocksMade++; //Increment the number of rocks made this round
         }
-        else if (this.rockTimer > this.rockCooldown && this.rocks.length < this.maxRocks && this.rocksMade < this.maxRocks) {
+        else if (this.rockTimer + Math.floor(Math.random() * 21) > this.rockCooldown && this.rocks.length < this.maxRocks && this.rocksMade < this.maxRocks) {
             var r = {};
 
             r.x = Math.floor((Math.random()*this.canvas.width) + 1);
@@ -832,7 +828,7 @@ app.main = {
                 var dist = Math.sqrt(Math.pow((appRef.rocks[i].x - this.x),2) + Math.pow((appRef.rocks[i].y - this.y),2));
                 
                 if(dist < (this.radius + appRef.rocks[i].radius)) {
-                    //Bullet is colliding with rock                    
+                    //Bullet is colliding with rock
                     appRef.score += appRef.rocks[i].value;
                     
 					//play rock destroy effect
