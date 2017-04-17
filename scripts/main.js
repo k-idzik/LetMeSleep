@@ -464,19 +464,9 @@ app.main = {
 		ctx.drawImage(this.sloth, 0, 0, this.canvas.width, this.slothHeight);
         ctx.drawImage(this.sloth, 0, this.canvas.height - this.slothHeight, this.canvas.width, this.slothHeight); 
 		
-		//Draw TITLE
+		//DRAW Back BUTTON
 		ctx.textAlign = "center";
         ctx.textBaseline = "middle";
-		
-        if (this.canvas.height == 800)
-            ctx.font = "40pt Open Sans";
-        else
-            ctx.font = "32pt Open Sans";
-        
-		ctx.fillStyle = 'black';
-		ctx.fillText("INSTRUCTIONS!" , this.canvas.width/2, this.canvas.height / 4);
-		
-		//DRAW Back BUTTON
 		ctx.fillStyle = "#C2976B";
 		ctx.strokeStyle = "brown";
 		ctx.fillRect((this.canvas.width /2) - 100, (this.canvas.height / 4) * 2.75, 200, 50);
