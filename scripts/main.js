@@ -523,11 +523,11 @@ app.main = {
         
 		//DRAW KEVIN CREDIT
 		ctx.drawImage(this.slothHead, this.canvas.width / 10, (this.canvas.height / 4) * 1.5, 60, 49);
-		ctx.fillText("KEVIN IDZIK", (this.canvas.width / 10) + 70, (this.canvas.height / 4) * 1.5 + 30);
+		ctx.fillText("KEVIN IDZIK", (this.canvas.width / 10) + 80, (this.canvas.height / 4) * 1.5 + 30);
 		
 		//DRAW JOSH CREDIT
 		ctx.drawImage(this.slothHead, this.canvas.width / 10, (this.canvas.height / 4) * 2, 60, 49);
-		ctx.fillText("JOSH MALMQUIST", (this.canvas.width / 10) + 70, (this.canvas.height / 4) * 2 + 30);
+		ctx.fillText("JOSH MALMQUIST", (this.canvas.width / 10) + 80, (this.canvas.height / 4) * 2 + 30);
 
         //Back button
         ctx.textAlign = "center";
