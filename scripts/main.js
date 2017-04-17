@@ -82,7 +82,6 @@ app.main = {
 		var numOfFrames = options.numOfFrames || 1;
 		
 		//Sprite update variables
-		debugger;
 		var frameIndex = 0; //tells which frame to display
 		var tickCount = 0; //keeps track of ticks
 		 var tickPerFrame = options.tickPerFrame || 0; //controls the fps of the animation
@@ -107,7 +106,6 @@ app.main = {
 		
 		//Sprite Update function
 		sprite.update = function(){
-			debugger;
 			tickCount += 1;
 			
 			if(tickCount > tickPerFrame){
@@ -285,7 +283,6 @@ app.main = {
                 if (this.particleEmitter != undefined && this.particleEmitter.activated)
                     this.particleEmitter.update(this.ctx);
                 
-				debugger;
 				this.zSprite.render( this.canvas.width/2, this.canvas.height-125, 50, 50);
 				
 				//DRAW HUD
@@ -833,7 +830,6 @@ app.main = {
 	mainMenuClicked: function(e) {
 		var mouse = getMouse(e);
 
-		//debugger;
 		var insideStart = clickedInsideButton(
 			mouse.x, //mouse x pos
 			mouse.y, //mouse y pos
@@ -852,7 +848,6 @@ app.main = {
 			(this.canvas.height / 4) * 2 + 50 //yMax for button
 		);
 		
-		//debugger;
 		var insideCredits = clickedInsideButton(
 			mouse.x, //mouse x pos
 			mouse.y, //mouse y pos
@@ -904,7 +899,8 @@ app.main = {
             var defaultPoint = new Victor(this.clickpoint.defaultX, this.clickpoint.defaultY);
             var movedPoint = new Victor(this.clickpoint.x, this.clickpoint.y);
             
-			if(this.screenState == this.SCREEN.GAMEOVER){
+			if(this.screenState == this.SCREEN.GAMEOVER) {
+                this.rocks = [];
 				this.resetGame();
 			}
             //Check event type and set if the clickpoint is being used
