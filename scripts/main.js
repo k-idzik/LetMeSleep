@@ -947,18 +947,24 @@ app.main = {
    	//When the slingshot is moved
    	moveSlingShot: function(e) {
    	    //If the mouse if being clicked and the game is not paused, allow the slingshot to be used
-   	    if (this.clickpoint.mouseClicked && this.screenState != this.SCREEN.PAUSED) {
-            //Make vectors to limit the distance the slingshot can move
-            var defaultPoint = new Victor(this.clickpoint.defaultX, this.clickpoint.defaultY);
-            var movedPoint = new Victor(this.clickpoint.x, this.clickpoint.y);
+   	    if (this.clickpoint.mouseClicked && this.screenState != this.SCREEN.PAUSED) {                            
+            var mouse = getMouse(e); //Get the position of the mouse on the canvas
+            var distanceVector = new Victor(mouse.x - this.clickpoint.defaultX, mouse.y - this.clickpoint.defaultY); //Make a distance vector to limit the distance the slingshot can move
             
-            //Limit the distance the slingshot can move
-            if (defaultPoint.distance(movedPoint) < 100) {
-                var mouse = getMouse(e); //Get the position of the mouse on the canvas
-
-                this.clickpoint.x = mouse.x;
-                this.clickpoint.y = mouse.y;
-            }
+            distanceVector.x = clamp(distanceVector.x, -100, 100); 
+            distanceVector.y = clamp(distanceVector.y, -100, 100);
+            
+            this.clickpoint.x = this.clickpoint.defaultX + distanceVector.x;
+            this.clickpoint.y = this.clickpoint.defaultY + distanceVector.y;
+            
+            //Circle stuff that doesn't quite work
+            //distanceVector.x = clamp(distanceVector.x, -100, 100);
+            //distanceVector.y = clamp(distanceVector.y, -100, 100);
+            //
+            //var angle = Math.atan2(distanceVector.y, distanceVector.x);
+            //
+            //this.clickpoint.x = this.clickpoint.defaultX + (Math.cos(angle) * distanceVector.x);
+            //this.clickpoint.y = this.clickpoint.defaultY + (Math.sin(angle) * distanceVector.y);
    	    }
    	},
     
