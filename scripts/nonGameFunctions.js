@@ -26,3 +26,14 @@ function clickedInsideButton(x, y, xMin, xMax, yMin, yMax){
 		return false;
 	}
 }
+
+/*
+Function Name: clamp(val, min, max)
+Author: Web - various sources
+Return Value: the constrained value
+Description: returns a value that is
+constrained between min and max (inclusive) 
+*/
+function clamp(val, min, max){
+	return Math.max(min, Math.min(max, val));
+}
