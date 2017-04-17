@@ -19,7 +19,10 @@ app.main = {
     sloth: undefined,
 	slothHead: undefined,
     slothHeight: 158,
-    rockIMG: undefined,
+    defaultRockImg: undefined,
+    jaugRockImg: undefined,
+    tripleRockImg: undefined,
+    bounceRockImg: undefined,
     bulletImg: undefined,
 	sleepyZ: undefined, //this holds the z sprite for sleepy sloth
     
@@ -53,11 +56,11 @@ app.main = {
     rocks: [],
     ROCK: Object.freeze({
         RADIUS: 15,
-        MIN_RADIUS: 2,
-        MAX_RADIUS: 15,
+        //MIN_RADIUS: 2,
+        //MAX_RADIUS: 15,
         SPEED: 1,
         VALUE: 5,
-        ROCK_ART: this.rockIMG,
+        //ROCK_ART: this.defaultRockImg
     }),
     rockCooldown: 100,
     rockTimer: 0,
@@ -111,8 +114,6 @@ app.main = {
 				drawHeight
 			);
 		};
-		
-		
 		
 		//Sprite Update function
 		sprite.update = function(deltaTime){
@@ -169,6 +170,16 @@ app.main = {
 		this.slothHead = new Image();
 		this.slothHead.src = "art/slothHead.png";
 		
+        //Rock images
+        this.defaultRockImg = new Image();
+        this.defaultRockImg.src = "art/defaultRock.png";
+        this.jaugRockImg = new Image();
+        this.jaugRockImg.src = "art/jaugRock.png";
+        this.tripleRockImg = new Image();
+        this.tripleRockImg.src = "art/tripleRock.png";
+        this.bounceRockImg = new Image();
+        this.bounceRockImg.src = "art/bounceRock.png";
+        
 		//Get sleepyZ sprite
 		this.sleepyZ = new Image();
 		this.sleepyZ.src = "art/zSpriteSheet.png";
@@ -245,7 +256,7 @@ app.main = {
 				//CREDITS UPDATE LOOP
 				break;
 		}
-        
+
         this.draw(this.ctx);
     },
 
@@ -281,7 +292,7 @@ app.main = {
         		for(var i =0; i < this.rocks.length; i++) {
         		    var r = this.rocks[i];
 		
-		            r.draw(ctx);
+		            r.draw(this);
 		        }
 				
 		        for(var i = 0; i < this.bullets.length; i++){
@@ -309,7 +320,7 @@ app.main = {
         		for(var i =0; i < this.rocks.length; i++) {
         		    var r = this.rocks[i];
 		
-		            r.draw(ctx);
+		            r.draw(this);
 		        }
 				
 		        for(var i = 0; i < this.bullets.length; i++){
@@ -332,7 +343,7 @@ app.main = {
         		for(var i =0; i < this.rocks.length; i++) {
         		    var r = this.rocks[i];
 		
-		            r.draw(ctx);
+		            r.draw(this);
 		        }
 				
 		        for(var i = 0; i < this.bullets.length; i++){
@@ -656,20 +667,21 @@ app.main = {
     
     ///Makes rocks
     makeRocks: function() {
-        var Rock_Draw = function(ctx) {
+        var Rock_Draw = function(appRef) {
             //draw rock to canvas
-            ctx.save();
-
-            ctx.strokeStyle = "black";
-            ctx.fillStyle = "gray";
-
-            ctx.beginPath();
-            ctx.arc(this.x, this.y, this.radius, 0, Math.PI*2);
-            ctx.stroke();
-            ctx.fill();
-            ctx.closePath();
-
-            ctx.restore();
+            appRef.ctx.drawImage(appRef.defaultRockImg, this.x - 15, this.y - 15, 30, 30);
+//            ctx.save();
+//
+//            ctx.strokeStyle = "black";
+//            ctx.fillStyle = "gray";
+//
+//            ctx.beginPath();
+//            ctx.arc(this.x, this.y, this.radius, 0, Math.PI*2);
+//            ctx.stroke();
+//            ctx.fill();
+//            ctx.closePath();
+//
+//            ctx.restore();
         };
 
         var Rock_Update = function(appRef) {
@@ -721,12 +733,11 @@ app.main = {
             if (this.round >= 15)
                 var weightRandom = Math.floor(Math.random() * 100); //0-99
             else if (this.round >= 10)
-                var weightRandom = Math.floor(Math.random() * 96); //0-95
+                var weightRandom = Math.floor(Math.random() * 95); //0-94
             else if (this.round >= 5)
-                var weightRandom = Math.floor(Math.random() * 86); //0-85
+                var weightRandom = Math.floor(Math.random() * 85); //0-84
             else
-                var weightRandom = Math.floor(Math.random() * 66); //0-65
-            
+                var weightRandom = Math.floor(Math.random() * 65); //0-64
             
             if (weightRandom >= 0 && weightRandom < 65)
                 r.speed = this.ROCK.SPEED;
