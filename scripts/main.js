@@ -6,6 +6,7 @@ var app = app || {};
 app.main = {
     //modules
 	sound: undefined,
+	keys: undefined,
 	
 	//Canvas
     canvas: undefined,
@@ -137,6 +138,19 @@ app.main = {
 	
 	zSprite: undefined,
 	
+	//PLAyer object
+	PLAYER: function(){
+		var play = {};
+		
+		play.name = "AAA";
+		play.score = 0;
+		
+		Object.seal(play);
+		return play;
+	},
+	
+	highScores: [],
+	
     ///Initialization function
     init: function() {
         this.canvas = document.querySelector("canvas");
@@ -183,6 +197,10 @@ app.main = {
 			tickPerFrame: 1,
 		});
         
+		//populate highScore array
+		for(var i = 0; i < 3; i++){
+			this.highScores.push(this.PLAYER);
+		}
         this.update(); //Start the animation loop
     },
 
