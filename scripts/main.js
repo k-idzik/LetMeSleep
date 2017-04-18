@@ -825,8 +825,6 @@ app.main = {
                     r.rockType = "bounce";
                     appRef.ctx.drawImage(appRef.bounceRockImg, this.x - 15, this.y - 15, 30, 30); //Bounce rock
                 }
-                
-                console.log(weightRandom);
             };
             
             r.update = Rock_Update;
@@ -890,8 +888,6 @@ app.main = {
                     r.rockType = "bounce";
                     appRef.ctx.drawImage(appRef.bounceRockImg, this.x - 15, this.y - 15, 30, 30); //Bounce rock
                 }
-                
-                console.log(weightRandom);
             };
             
             r.update = Rock_Update;
@@ -975,8 +971,9 @@ app.main = {
                     appRef.rocks.splice(i, 1);
                     
                     for(var j =0; j < appRef.bullets.length; j++) {
-                        if(appRef.bullets[j] == this) {                            
-                            appRef.bullets.splice(j, 1);
+                        if(appRef.bullets[j] == this) {
+                            if (appRef.bulletType != "jaug")
+                                appRef.bullets.splice(j, 1);
                             delete this;
                             break;
                         }
