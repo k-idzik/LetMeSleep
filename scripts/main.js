@@ -4,20 +4,31 @@
 var app = app || {};
 
 app.main = {
-    //Canvas
+    //modules
+	sound: undefined,
+	keys: undefined,
+	
+	//Canvas
     canvas: undefined,
     ctx: undefined,
     animationID: 0,
     score: 0,
-    
+	lastTime:0,
+    deltaTime: 0,
+	
     //Images
     sloth: undefined,
 	slothHead: undefined,
     slothHeight: 158,
-    rockIMG: undefined,
+    defaultRockImg: undefined,
+    jaugRockImg: undefined,
+    tripleRockImg: undefined,
+    bounceRockImg: undefined,
     bulletImg: undefined,
 	sleepyZ: undefined, //this holds the z sprite for sleepy sloth
-    
+    slingshotImage: undefined,
+    instructImage: undefined,
+	
 	//Sloth Lives
 	slothLives: 3,
 	
@@ -48,11 +59,11 @@ app.main = {
     rocks: [],
     ROCK: Object.freeze({
         RADIUS: 15,
-        MIN_RADIUS: 2,
-        MAX_RADIUS: 15,
+        //MIN_RADIUS: 2,
+        //MAX_RADIUS: 15,
         SPEED: 1,
         VALUE: 5,
-        ROCK_ART: this.rockIMG,
+        //ROCK_ART: this.defaultRockImg
     }),
     rockCooldown: 100,
     rockTimer: 0,
@@ -67,8 +78,13 @@ app.main = {
         BULLET_ART: this.bulletImg,
     }),
     
+    //Particles
     Particles: undefined,
     particleEmitter: undefined,
+    
+    //Game round
+    round: 1,
+    rocksMade: 0,
     
 	//Sprite constructor
 	sprite: function(options){
@@ -79,21 +95,21 @@ app.main = {
 		sprite.height = options.height;
 		sprite.image = options.image;
 		sprite.loop = options.loop;
-		var numOfFrames = options.numOfFrames || 1;
-		
+		sprite.numOfFrames = options.numOfFrames || 1;
+        
 		//Sprite update variables
 		var frameIndex = 0; //tells which frame to display
 		var tickCount = 0; //keeps track of ticks
-		 var tickPerFrame = options.tickPerFrame || 0; //controls the fps of the animation
+		var tickPerFrame = options.tickPerFrame || 0; //controls the fps of the animation
 		
 		//Sprite Render function
-		sprite.render = function(x, y, drawWidth, drawHeight){
+		sprite.render = function(x, y, drawWidth, drawHeight, appRef){
 			//draw the sprite animation
 			sprite.context.drawImage(
 				sprite.image,  //Refrence to the spriteSheet
-				frameIndex * sprite.width / numOfFrames,
+				frameIndex * (sprite.width - (140 * (4 - sprite.numOfFrames))) / sprite.numOfFrames,
 				0,
-				sprite.width / numOfFrames, //draw image to the width of one sprite
+				sprite.width / 4, //draw image to the width of one sprite
 				sprite.height, //draw image to the height of one sprite
 				x,
 				y,
@@ -101,18 +117,16 @@ app.main = {
 				drawHeight
 			);
 		};
-		
-		
-		
+        
 		//Sprite Update function
-		sprite.update = function(){
-			tickCount += 1;
+		sprite.update = function(deltaTime){
+			tickCount += 4 * deltaTime;
 			
 			if(tickCount > tickPerFrame){
 				tickCount = 0;
 				
 				//if current frame index is in range
-				if(frameIndex < numOfFrames -1){
+				if(frameIndex < sprite.numOfFrames -1){
 					//next frame
 					frameIndex += 1;
 				}
@@ -126,6 +140,21 @@ app.main = {
 	},
 	
 	zSprite: undefined,
+	
+	//PLAyer object
+	PLAYER: function(){
+		var play = {};
+		
+		play.name = "AAA";
+		play.score = 0;
+		
+		Object.seal(play);
+		return play;
+	},
+	
+	highScores: [],
+	checkScore: true,
+	newHighScore: false,
 	
     ///Initialization function
     init: function() {
@@ -145,12 +174,13 @@ app.main = {
         ////Set the clickpoint coordinates
         //this.clickpoint.defaultX = this.clickpoint.x = this.canvas.width / 2;
         //this.clickpoint.defaultY = this.clickpoint.y = this.canvas.height - 220;      
-        
+        this.deltaTime = this.calculateDeltaTime();
+
         //Hook up events
         this.canvas.onmousedown = this.mainMenuClicked.bind(this);  
-        //this.canvas.onmouseup = this.clickedSlingShot.bind(this);
-        //this.canvas.onmousemove = this.moveSlingShot.bind(this);
         
+		this.sound.playBGSound();
+		
         //get sloth Image
         this.sloth = new Image();
         this.sloth.src = "art/SleepingSloth.png";
@@ -158,9 +188,27 @@ app.main = {
 		this.slothHead = new Image();
 		this.slothHead.src = "art/slothHead.png";
 		
+        //Rock images
+        this.defaultRockImg = new Image();
+        this.defaultRockImg.src = "art/defaultRock.png";
+        this.jaugRockImg = new Image();
+        this.jaugRockImg.src = "art/jaugRock.png";
+        this.tripleRockImg = new Image();
+        this.tripleRockImg.src = "art/tripleRock.png";
+        this.bounceRockImg = new Image();
+        this.bounceRockImg.src = "art/bounceRock.png";
+        
 		//Get sleepyZ sprite
 		this.sleepyZ = new Image();
 		this.sleepyZ.src = "art/zSpriteSheet.png";
+        
+        //Slingshot image
+		this.slingshotImage = new Image();
+		this.slingshotImage.src = "art/slingshot.png";
+		
+		//instruct image
+		this.instructImage = new Image();
+		this.instructImage.src = "art/instructions.png";
 		
 		this.zSprite = this.sprite({
 			context: this.ctx,
@@ -169,11 +217,13 @@ app.main = {
 			image: this.sleepyZ,
 			loop: true,
 			numOfFrames: 4,
-			tickPerFrame: 30,
+			tickPerFrame: 1
 		});
-		
-        //this.makeRocks(); //I'm not sure this needs to be here
         
+		//populate highScore array
+		for(var i = 0; i < 3; i++){
+			this.highScores.push(this.PLAYER());
+		}
         this.update(); //Start the animation loop
     },
 
@@ -182,6 +232,8 @@ app.main = {
         //Update the animation frame 60 times a second, binding it to call itself
         this.animationID = requestAnimationFrame(this.update.bind(this));
         
+		this.deltaTime = this.calculateDeltaTime();
+		
 		switch(this.screenState) {
             case this.SCREEN.MAIN:
 				//MAIN MENU Update LOOP
@@ -214,9 +266,10 @@ app.main = {
 				
 				if(this.slothLives <=0) {
 					this.screenState = this.SCREEN.GAMEOVER;
+					window.onkeydown = this.keys.gameOverKeydown;
 				}
-				
-				this.zSprite.update();
+
+				this.zSprite.update(this.deltaTime);
 				
 				break;
 				
@@ -227,14 +280,22 @@ app.main = {
 				
 			case this.SCREEN.GAMEOVER:
 				//GAME OVER UPDATE LOOP
+				//get highscores
+				var scores = this.getHighScores();
 				
+				
+				//if this is the first round through the game over update and check to see if score is a new highscore
+				if(this.checkScore && (this.score > scores[2].score)){
+					this.newHighScore = true;
+				}
+				this.checkScore = false;
 				break;
-			
+				
 			case this.SCREEN.CREDITS:
 				//CREDITS UPDATE LOOP
 				break;
 		}
-        
+
         this.draw(this.ctx);
     },
 
@@ -262,15 +323,16 @@ app.main = {
 				
 			case this.SCREEN.GAME:
 				//GAME DRAW LOOP
-				//Draws the sloth
-        		ctx.drawImage(this.sloth, 0, this.canvas.height - this.slothHeight, this.canvas.width, this.slothHeight); 
         		
         		this.drawSlingShot(ctx); //Draw the slingshot
         		
+                //Draws the sloth
+        		ctx.drawImage(this.sloth, 0, this.canvas.height - this.slothHeight, this.canvas.width, this.slothHeight);
+                
         		for(var i =0; i < this.rocks.length; i++) {
         		    var r = this.rocks[i];
 		
-		            r.draw(ctx);
+		            r.draw(this);
 		        }
 				
 		        for(var i = 0; i < this.bullets.length; i++){
@@ -283,7 +345,7 @@ app.main = {
                 if (this.particleEmitter != undefined && this.particleEmitter.activated)
                     this.particleEmitter.update(this.ctx);
                 
-				this.zSprite.render( this.canvas.width/2, this.canvas.height-125, 50, 50);
+				this.zSprite.render(this.canvas.width/2, this.canvas.height - (this.slothHeight * 1.15), 50, 50, this);
 				
 				//DRAW HUD
 				this.drawHUD(ctx);
@@ -298,7 +360,7 @@ app.main = {
         		for(var i =0; i < this.rocks.length; i++) {
         		    var r = this.rocks[i];
 		
-		            r.draw(ctx);
+		            r.draw(this);
 		        }
 				
 		        for(var i = 0; i < this.bullets.length; i++){
@@ -321,7 +383,7 @@ app.main = {
         		for(var i =0; i < this.rocks.length; i++) {
         		    var r = this.rocks[i];
 		
-		            r.draw(ctx);
+		            r.draw(this);
 		        }
 				
 		        for(var i = 0; i < this.bullets.length; i++){
@@ -331,7 +393,11 @@ app.main = {
 		        }
 				//DRAW HUD
 				this.drawHUD(ctx);
-				this.drawGameOverScreen(ctx);
+				
+				//get highscores
+				var scores = this.getHighScores();
+				
+				this.drawGameOverScreen(ctx, scores);
 				break;
 				
 			case this.SCREEN.CREDITS:
@@ -359,13 +425,13 @@ app.main = {
     },
 
 	//START GAME METHOD
-	startGame: function() {
-		
+	startGame: function() {	
 		//Set the clickpoint coordinates
         this.clickpoint.defaultX = this.clickpoint.x = this.canvas.width / 2;
-        this.clickpoint.defaultY = this.clickpoint.y = this.canvas.height - 220;      
+        this.clickpoint.defaultY = this.clickpoint.y = this.canvas.height - this.slothHeight - 90;      
         
         //Hook up events
+        this.canvas.onmouseover = undefined;
         this.canvas.onmousedown = this.clickedSlingShot.bind(this);  
         this.canvas.onmouseup = this.clickedSlingShot.bind(this);
         this.canvas.onmousemove = this.moveSlingShot.bind(this);
@@ -377,6 +443,15 @@ app.main = {
 	resetGame: function(){
 		this.slothLives = 3;
 		this.score = 0;
+        this.rocks = [];
+        this.round = 1;
+        this.maxRocks = 5;
+        this.rocksMade = 0;
+        this.bullets = [];
+		this.checkScore = true;
+		window.onkeydown = null;
+        this.zSprite.numOfFrames = 4;
+        this.zSprite.width = 560;
 		
 		this.screenState = this.SCREEN.MAIN;
 		this.canvas.onmousedown = this.mainMenuClicked.bind(this);
@@ -387,7 +462,7 @@ app.main = {
 		
 		//Set the clickpoint coordinates
         this.clickpoint.defaultX = this.clickpoint.x = this.canvas.width / 2;
-        this.clickpoint.defaultY = this.clickpoint.y = this.canvas.height - 220;      
+        this.clickpoint.defaultY = this.clickpoint.y = this.canvas.height - this.slothHeight - 90;      
         
         //Hook up events
         this.canvas.onmousedown = this.backClicked.bind(this);
@@ -399,7 +474,7 @@ app.main = {
 	switchCredits: function(){
 		//Set the clickpoint coordinates
         this.clickpoint.defaultX = this.clickpoint.x = this.canvas.width / 2;
-        this.clickpoint.defaultY = this.clickpoint.y = this.canvas.height - 220;      
+        this.clickpoint.defaultY = this.clickpoint.y = this.canvas.height - this.slothHeight - 90;      
         
         //Hook up events
         this.canvas.onmousedown = this.backClicked.bind(this);
@@ -419,20 +494,25 @@ app.main = {
         ctx.textBaseline = "middle";
         
         if (this.canvas.height == 800)
-            ctx.font = "40pt Open Sans";
+            ctx.font = "40pt Permanent Marker";
         else
-            ctx.font = "32pt Open Sans";
+            ctx.font = "30pt Permanent Marker";
         
 		ctx.fillStyle = 'black';
 		ctx.fillText("LET ME SLEEP!" , this.canvas.width/2, this.canvas.height / 4);
 		
+        //Buttons
+        if (this.canvas.height == 800)
+            ctx.font = "20pt Permanent Marker";
+        else
+            ctx.font = "18pt Permanent Marker";
+        
 		//DRAW START GAME BUTTON
 		ctx.fillStyle = "#C2976B";
 		ctx.strokeStyle = "brown";
 		ctx.fillRect((this.canvas.width /2) - 100, (this.canvas.height / 4) * 1.5, 200, 50);
 		ctx.strokeRect((this.canvas.width /2) - 100, (this.canvas.height / 4) * 1.5, 200, 50)
-		ctx.fillStyle = 'black';
-		ctx.font = "20pt Open Sans";
+		ctx.fillStyle = 'black';        
 		ctx.fillText("START GAME", this.canvas.width/2, (this.canvas.height / 4) * 1.5 + 30);
 		
 		//DRAW HOW TO PLAY GAME BUTTON
@@ -441,7 +521,6 @@ app.main = {
 		ctx.fillRect((this.canvas.width /2) - 100, (this.canvas.height / 4) * 2, 200, 50);
 		ctx.strokeRect((this.canvas.width /2) - 100, (this.canvas.height / 4) * 2, 200, 50)
 		ctx.fillStyle = 'black';
-		ctx.font = "20pt Open Sans";
 		ctx.fillText("INSTRUCTIONS", this.canvas.width/2, (this.canvas.height / 4) * 2 + 30);
 		
 		//DRAW CREDITS BUTTON
@@ -450,7 +529,6 @@ app.main = {
 		ctx.fillRect((this.canvas.width /2) - 100, (this.canvas.height / 4) * 2.5, 200, 50);
 		ctx.strokeRect((this.canvas.width /2) - 100, (this.canvas.height / 4) * 2.5, 200, 50)
 		ctx.fillStyle = 'black';
-		ctx.font = "20pt Open Sans";
 		ctx.fillText("CREDITS", this.canvas.width/2, (this.canvas.height / 4) * 2.5 + 30);
         
         ctx.restore();
@@ -464,27 +542,21 @@ app.main = {
 		ctx.drawImage(this.sloth, 0, 0, this.canvas.width, this.slothHeight);
         ctx.drawImage(this.sloth, 0, this.canvas.height - this.slothHeight, this.canvas.width, this.slothHeight); 
 		
-		//Draw TITLE
+		ctx.drawImage(this.instructImage, 0 , 140, this.canvas.width, this.canvas.width);
+		//DRAW Back BUTTON
+        if (this.canvas.height == 800)
+            ctx.font = "20pt Permanent Marker";
+        else
+            ctx.font = "18pt Permanent Marker";
+        
 		ctx.textAlign = "center";
         ctx.textBaseline = "middle";
-		
-        if (this.canvas.height == 800)
-            ctx.font = "40pt Open Sans";
-        else
-            ctx.font = "32pt Open Sans";
-        
-		ctx.fillStyle = 'black';
-		ctx.fillText("INSTRUCTIONS!" , this.canvas.width/2, this.canvas.height / 4);
-		
-		//DRAW Back BUTTON
 		ctx.fillStyle = "#C2976B";
 		ctx.strokeStyle = "brown";
 		ctx.fillRect((this.canvas.width /2) - 100, (this.canvas.height / 4) * 2.75, 200, 50);
 		ctx.strokeRect((this.canvas.width /2) - 100, (this.canvas.height / 4) * 2.75, 200, 50)
 		ctx.fillStyle = 'black';
-		ctx.font = "20pt Open Sans";
 		ctx.fillText("BACK", this.canvas.width/2, (this.canvas.height / 4) * 2.75 + 30);
-		
 
 		ctx.restore();
 	},
@@ -502,13 +574,13 @@ app.main = {
         ctx.textBaseline = "middle";
 
         if (this.canvas.height == 800)
-            ctx.font = "40pt Open Sans";
+            ctx.font = "40pt Permanent Marker";
         else
-            ctx.font = "32pt Open Sans";
+            ctx.font = "30pt Permanent Marker";
         
 		ctx.fillStyle = 'black';
 		ctx.fillText("LET ME SLEEP!" , this.canvas.width/2, this.canvas.height / 4);
-        ctx.font = "12pt Open Sans";
+        ctx.font = "12pt Permanent Marker";
         if (this.canvas.height == 800)
             ctx.fillText("MADE BY:", this.canvas.width/2, (this.canvas.height / 4) + 40);
         else
@@ -517,26 +589,30 @@ app.main = {
         //Change values for name drawing
         ctx.textAlign = "left";
         if (this.canvas.height == 800)
-            ctx.font = "24pt Open Sans";
+            ctx.font = "24pt Permanent Marker";
         else
-            ctx.font = "16pt Open Sans";
+            ctx.font = "16pt Permanent Marker";
         
 		//DRAW KEVIN CREDIT
-		ctx.drawImage(this.slothHead, this.canvas.width / 8, (this.canvas.height / 4) * 1.5, 50,50);
-		ctx.fillText("KEVIN IDZIK", (this.canvas.width / 8) + 60, (this.canvas.height / 4) * 1.5 + 30);
+		ctx.drawImage(this.slothHead, this.canvas.width / 10, (this.canvas.height / 4) * 1.5, 60, 49);
+		ctx.fillText("KEVIN IDZIK", (this.canvas.width / 10) + 80, (this.canvas.height / 4) * 1.5 + 30);
 		
 		//DRAW JOSH CREDIT
-		ctx.drawImage(this.slothHead, this.canvas.width / 8, (this.canvas.height / 4) * 2, 50,50);
-		ctx.fillText("JOSH MALMQUIST", (this.canvas.width / 8) + 60, (this.canvas.height / 4) * 2 + 30);
+		ctx.drawImage(this.slothHead, this.canvas.width / 10, (this.canvas.height / 4) * 2, 60, 49);
+		ctx.fillText("JOSH MALMQUIST", (this.canvas.width / 10) + 80, (this.canvas.height / 4) * 2 + 30);
 
         //Back button
+        if (this.canvas.height == 800)
+            ctx.font = "20pt Permanent Marker";
+        else
+            ctx.font = "18pt Permanent Marker";
+        
         ctx.textAlign = "center";
         ctx.fillStyle = "#C2976B";
 		ctx.strokeStyle = "brown";
 		ctx.fillRect((this.canvas.width /2) - 100, (this.canvas.height / 4) * 2.75, 200, 50);
 		ctx.strokeRect((this.canvas.width /2) - 100, (this.canvas.height / 4) * 2.75, 200, 50)
 		ctx.fillStyle = 'black';
-		ctx.font = "20pt Open Sans";
 		ctx.fillText("BACK", this.canvas.width/2, (this.canvas.height / 4) * 2.75 + 30);
 		
 		ctx.restore();
@@ -560,7 +636,7 @@ app.main = {
         ctx.textBaseline = "middle";
 
         //Draw text
-        ctx.font = "40pt Open Sans";
+        ctx.font = "40pt Permanent Marker";
         ctx.fillStyle = "white";
         ctx.fillText("PAUSED", 0, 0);
         
@@ -570,24 +646,18 @@ app.main = {
 	//draws HUD
 	drawHUD: function(ctx){
 		ctx.save();
-        //DRAW LIVES
-		ctx.textAlign = "left";
-        ctx.textBaseline = "top";
-		ctx.font = "24pt Open Sans";
-		ctx.fillStyle = 'black';
-		ctx.fillText("LIVES:" ,0,0);
-		
-		for(var s =0; s< this.slothLives; s++){
-			ctx.drawImage(this.slothHead,(s*50)+100,0, 50,50);
-		}
         
         //DRAW SCORE
-        ctx.textAlign = "right";
-        ctx.fillText("Score: " + this.score,this.canvas.width, 0);
+		ctx.textAlign = "center";
+        ctx.textBaseline = "top";
+		ctx.font = "24pt Permanent Marker";
+		ctx.fillStyle = "black";
+        ctx.fillText("Score: " + this.score, this.canvas.width / 2, 0);
+        
 		ctx.restore();
 	},
 	
-	drawGameOverScreen: function(ctx){
+	drawGameOverScreen: function(ctx, scores){
 		ctx.save(); //Save the current state of the canvas
 
         //Obscure the game
@@ -600,14 +670,64 @@ app.main = {
         ctx.translate(this.canvas.width / 2, this.canvas.height / 4);
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
-
+	
         //Draw text
-        ctx.font = "40pt Open Sans";
+        if (this.canvas.height == 800)
+            ctx.font = "40pt Permanent Marker";
+        else
+            ctx.font = "30pt Permanent Marker";
+        
         ctx.fillStyle = "white";
         ctx.fillText("GAME OVER", 0, 0);
 
-        ctx.font = "12pt Open Sans";
-        ctx.fillText("Click to play again!", 0, 40);
+		if(this.newHighScore){
+            if (this.canvas.height == 800)
+                ctx.font = "40pt Permanent Marker";
+            else
+                ctx.font = "30pt Permanent Marker";
+            
+        	ctx.fillStyle = "white";
+        	ctx.fillText("New Highscore", 0, 70);
+			
+            if (this.canvas.height == 800)
+                ctx.font = "30pt Permanent Marker";
+            else
+                ctx.font = "20pt Permanent Marker";
+			
+			var intials = [];
+			for(var i =0; i < this.keys.pName.length; i++){
+				intials.push(this.keys.pName[i]);
+			}
+			
+			while(intials.length != 3){
+				intials.push("_");
+			}
+			
+			ctx.fillText("Name: " + intials[0] + " " + intials[1] + " " + intials[2], 0, 130);
+			
+			ctx.fillText("Press Shift & Enter", 0, 200);
+			ctx.fillText(" to confirm name" , 0, 240);
+		}
+		else{
+			//Draw leaderboard
+            if (this.canvas.height == 800)
+                ctx.font = "40pt Permanent Marker";
+            else
+                ctx.font = "30pt Permanent Marker";
+            
+        	ctx.fillStyle = "white";
+        	ctx.fillText("LeaderBoard", 0, 70);
+			
+			ctx.font = " 20pt Permanent Marker";
+            
+			//draw scores
+			for(var p = 0; p < 3; p++){
+				ctx.fillText("Name: " + scores[p].name + " Score: " + scores[p].score, 0, 120 + (40*p));
+			}
+			ctx.font = "12pt Permanent Marker";
+        	ctx.fillText("Click to play again!", 0, 300);
+		}
+        
         
         ctx.restore(); //Restore the canvas state to what it was before drawing the pause screen
 	},
@@ -620,23 +740,15 @@ app.main = {
         ctx.lineCap = "round";
         
         //Draw the slingshot
-        ctx.lineWidth = 10;
-        ctx.strokeStyle = "#8B4513";
-        ctx.beginPath();
-        ctx.moveTo(this.canvas.width / 2, this.canvas.height - 100);
-        ctx.lineTo(this.canvas.width / 2, this.canvas.height - 170);
-        ctx.lineTo(this.canvas.width / 2.6, this.canvas.height - 220);
-        ctx.moveTo(this.canvas.width / 2, this.canvas.height - 170);
-        ctx.lineTo(this.canvas.width - (this.canvas.width / 2.6), this.canvas.height - 220);
-        ctx.stroke();
+        ctx.drawImage(this.slingshotImage, (this.canvas.width / 2) - 45, this.canvas.height - this.slothHeight - 100, 90, 150);
         
         //Draw the slingshot's curved component
         ctx.lineWidth = 5;
         ctx.strokeStyle = "grey";
         ctx.beginPath();
-        ctx.moveTo(this.canvas.width / 2.6, this.canvas.height - 220);
+        ctx.moveTo((this.canvas.width / 2) - 35, this.canvas.height - this.slothHeight - 90);
         ctx.lineTo(this.clickpoint.x, this.clickpoint.y);
-        ctx.lineTo(this.canvas.width - (this.canvas.width / 2.6), this.canvas.height - 220);
+        ctx.lineTo(this.canvas.width - ((this.canvas.width / 2) - 35), this.canvas.height - this.slothHeight - 90);
         ctx.stroke();
         
         //Draw the slingshot's click point
@@ -650,20 +762,9 @@ app.main = {
     
     ///Makes rocks
     makeRocks: function() {
-        var Rock_Draw = function(ctx) {
+        var Rock_Draw = function(appRef) {
             //draw rock to canvas
-            ctx.save();
-
-            ctx.strokeStyle = "black";
-            ctx.fillStyle = "gray";
-
-            ctx.beginPath();
-            ctx.arc(this.x, this.y, this.radius, 0, Math.PI*2);
-            ctx.stroke();
-            ctx.fill();
-            ctx.closePath();
-
-            ctx.restore();
+            appRef.ctx.drawImage(appRef.defaultRockImg, this.x - 15, this.y - 15, 30, 30);
         };
 
         var Rock_Update = function(appRef) {
@@ -671,19 +772,20 @@ app.main = {
             this.y += this.speed;
 
 			//rock has hit sloth
-            if(this.y > appRef.canvas.height-100){
+            if(this.y > appRef.canvas.height-100) {                
                 //remove from rocks array
                 for(var i =0; i < appRef.rocks.length; i++) {
-                    if(appRef.rocks[i] == this){
+                    if(appRef.rocks[i] == this) {
                         appRef.rocks.splice(i, 1);
 						appRef.slothLives--;
+                        appRef.zSprite.numOfFrames--;
                         break;
                     }
                 }
             }
         };
 
-        if(this.rocks.length == 0) {
+        if (this.rocks.length == 0 && this.rocksMade < this.maxRocks) {
             var r = {};
 
             r.x = Math.floor((Math.random()*this.canvas.width) + 1);
@@ -700,8 +802,10 @@ app.main = {
             Object.seal(r);
             this.rocks.push(r);
             this.rockTimer = 0;
+            
+            this.rocksMade++; //Increment the number of rocks made this round
         }
-        else if(this.rockTimer > this.rockCooldown && this.rocks.length < this.maxRocks) {
+        else if (this.rockTimer + Math.floor(Math.random() * 21) > this.rockCooldown && this.rocks.length < this.maxRocks && this.rocksMade < this.maxRocks) {
             var r = {};
 
             r.x = Math.floor((Math.random()*this.canvas.width) + 1);
@@ -710,7 +814,15 @@ app.main = {
             r.radius = this.ROCK.RADIUS;
             
             //Give the rock some variance in speed
-            var weightRandom = Math.floor(Math.random() * 100); //0-99
+            if (this.round >= 15)
+                var weightRandom = Math.floor(Math.random() * 100); //0-99
+            else if (this.round >= 10)
+                var weightRandom = Math.floor(Math.random() * 95); //0-94
+            else if (this.round >= 5)
+                var weightRandom = Math.floor(Math.random() * 85); //0-84
+            else
+                var weightRandom = Math.floor(Math.random() * 65); //0-64
+            
             if (weightRandom >= 0 && weightRandom < 65)
                 r.speed = this.ROCK.SPEED;
             else if (weightRandom >= 65 && weightRandom < 85)
@@ -729,9 +841,18 @@ app.main = {
             this.rocks.push(r);
 
             this.rockTimer = 0;
+            
+            this.rocksMade++; //Increment the number of rocks made this round
         }
         else {
             this.rockTimer++;
+        }
+        
+        //If the round is over, make new rocks
+        if (this.rocks.length == 0 && this.rocksMade == this.maxRocks) {
+            this.round++;
+            this.rocksMade = 0;
+            this.maxRocks += Math.floor(Math.sqrt(this.maxRocks / 1.3));
         }
     },
 	
@@ -740,18 +861,10 @@ app.main = {
         var BULLET_UPDATE = function(appRef) {
             direction.normalize();
             
-            //this.x -= direction.x * this.speed;
-            //this.y -= direction.y * this.speed;
-            
             //Use the speed passed in through the method
             //More speed references may need to be updated later
             this.x -= direction.x * speed;
             this.y -= direction.y * speed;
-            
-            //TO BE REPLACED WITH SLING SHOT DETERMINING SPEED
-            //this.x += this.speed;
-            //this.y -= this.speed;
-            //////////////////////////////////////////////////
             
             this.CollisionDetection(appRef);
             
@@ -785,9 +898,12 @@ app.main = {
                 var dist = Math.sqrt(Math.pow((appRef.rocks[i].x - this.x),2) + Math.pow((appRef.rocks[i].y - this.y),2));
                 
                 if(dist < (this.radius + appRef.rocks[i].radius)) {
-                    //Bullet is colliding with rock                    
+                    //Bullet is colliding with rock
                     appRef.score += appRef.rocks[i].value;
                     
+					//play rock destroy effect
+					appRef.sound.playEffect(0);
+					
                     //Initialize particles
                     appRef.particleEmitter = new appRef.Particles();
                     appRef.particleEmitter.initialize(appRef.rocks[i].x, appRef.rocks[i].y);
@@ -826,6 +942,7 @@ app.main = {
         
     },
    
+	
 	//MAIN MENU CLICKED FUNCTION
 	mainMenuClicked: function(e) {
 		var mouse = getMouse(e);
@@ -858,17 +975,14 @@ app.main = {
 		);
 		
 		if(insideStart){
-		    console.log("Start clicked");
 			this.startGame();
 		}
 		else if(insideInstruct){
-			console.log("instruct clicked");
 			this.switchInstruct();
 		}
 		else if(insideCredits){
 			this.switchCredits();
-		}
-		
+		}	
 	},
 	
 	//Credit Clicked Function
@@ -884,29 +998,31 @@ app.main = {
 			(this.canvas.height / 4) * 2.75 + 50//yMax for button
 		);
 		
-		if(insideBack){
+		if(insideBack) {
 			this.canvas.onmousedown = this.mainMenuClicked.bind(this);  
 			this.screenState = this.SCREEN.MAIN;
 		}
-		
 	},
 		   
    	///When the slingshot is clicked on
    	clickedSlingShot: function(e) {
         //If the game is not paused
-        if (this.screenState != this.SCREEN.PAUSED) {
+        if (this.screenState != this.SCREEN.PAUSED) {            
             var mouse = getMouse(e); //Get the position of the mouse on the canvas
             var defaultPoint = new Victor(this.clickpoint.defaultX, this.clickpoint.defaultY);
             var movedPoint = new Victor(this.clickpoint.x, this.clickpoint.y);
             
-			if(this.screenState == this.SCREEN.GAMEOVER) {
-                this.rocks = [];
+			if(this.screenState == this.SCREEN.GAMEOVER && !this.checkScore && !this.newHighScore) {
 				this.resetGame();
 			}
+            
             //Check event type and set if the clickpoint is being used
-            if (e.type == "mousedown" && clickedInsideSling(mouse.x, mouse.y, this.clickpoint) && defaultPoint.distance(movedPoint) < 1)
+            if (e.type == "mousedown" && clickedInsideSling(mouse.x, mouse.y, this.clickpoint) && defaultPoint.distance(movedPoint) < 1) {
+                document.querySelector("canvas").style.cursor = "crosshair";
                 this.clickpoint.mouseClicked = true;
+            }
             else if (e.type == "mouseup") {
+                document.querySelector("canvas").style.cursor = "default";
                 this.clickpoint.mouseClicked = false; //The mouse is not being clicked
                 this.clickpoint.previousMouseClicked = true; //The mouse was previously clicked
             }
@@ -916,17 +1032,20 @@ app.main = {
    	//When the slingshot is moved
    	moveSlingShot: function(e) {
    	    //If the mouse if being clicked and the game is not paused, allow the slingshot to be used
-   	    if (this.clickpoint.mouseClicked && this.screenState != this.SCREEN.PAUSED) {
-            //Make vectors to limit the distance the slingshot can move
-            var defaultPoint = new Victor(this.clickpoint.defaultX, this.clickpoint.defaultY);
-            var movedPoint = new Victor(this.clickpoint.x, this.clickpoint.y);
+   	    if (this.clickpoint.mouseClicked && this.screenState != this.SCREEN.PAUSED) {                            
+            var mouse = getMouse(e); //Get the position of the mouse on the canvas
+            var distanceVector = new Victor(mouse.x - this.clickpoint.defaultX, mouse.y - this.clickpoint.defaultY); //Make a distance vector to limit the distance the slingshot can move
             
-            //Limit the distance the slingshot can move
-            if (defaultPoint.distance(movedPoint) < 100) {
-                var mouse = getMouse(e); //Get the position of the mouse on the canvas
+            //If the distance is short enough, calculate position normally
+            if (distanceVector.magnitude() < 100) {
+                this.clickpoint.x = this.clickpoint.defaultX + distanceVector.x;
+                this.clickpoint.y = this.clickpoint.defaultY + distanceVector.y;
+            }
+            else { //Clamp the magnitude the hard way
+                var angle = Math.atan2(distanceVector.y, distanceVector.x);
 
-                this.clickpoint.x = mouse.x;
-                this.clickpoint.y = mouse.y;
+                this.clickpoint.x = this.clickpoint.defaultX + (Math.cos(angle) * 100);
+                this.clickpoint.y = this.clickpoint.defaultY + (Math.sin(angle) * 100);
             }
    	    }
    	},
@@ -945,9 +1064,53 @@ app.main = {
             
             //Fire a bullet if the slingshot has moved far enough
             if (this.clickpoint.previousMouseClicked && defaultPoint.distance(movedPoint) > 5) {
+                this.sound.playEffect(1);
                 this.makeBullet(this.clickpoint.x, this.clickpoint.y, Victor(movedPoint.x - defaultPoint.x, movedPoint.y - defaultPoint.y), defaultPoint.distance(movedPoint) / 10); //Make a bullet
                 this.clickpoint.previousMouseClicked = false;
             }
         }
-   	}
+   	},
+	
+	calculateDeltaTime: function(){
+		var now,fps;
+		now = performance.now(); 
+		fps = 1000 / (now - this.lastTime);
+		fps = clamp(fps, 12, 60);
+		this.lastTime = now; 
+		return 1/fps;
+	},
+	
+	//Gets the top 3 scores for the game
+	getHighScores: function(){
+		var hs1 = this.PLAYER();
+		var hs2 = this.PLAYER(); 
+		var hs3 = this.PLAYER();
+		
+		for(var i =0; i < this.highScores.length; i++){
+			if(this.highScores[i].score > hs1.score){
+				//move highscores down in rank
+				hs3 = hs2;
+				hs2 = hs1;
+				
+				//set rank 1 highscore to this highscore
+				hs1 = this.highScores[i];
+			}
+			else if(this.highScores[i].score > hs2.score){
+				//move highscores  down in rank
+				hs3 = hs2;
+				
+				//set rank 2 highscore to this highscore
+				hs2 = this.highScores[i];
+			}
+			else if(this.highScores[i].score > hs3.score){
+				hs3 = this.highScores[i];
+			}
+		}
+		
+		var hs = [];
+		hs.push(hs1);
+		hs.push(hs2);
+		hs.push(hs3);
+		return hs;
+	}
 };
