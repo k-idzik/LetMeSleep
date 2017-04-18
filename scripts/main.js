@@ -483,9 +483,9 @@ app.main = {
         ctx.textBaseline = "middle";
         
         if (this.canvas.height == 800)
-            ctx.font = "40pt Open Sans";
+            ctx.font = "40pt Permanent Marker";
         else
-            ctx.font = "32pt Open Sans";
+            ctx.font = "32pt Permanent Marker";
         
 		ctx.fillStyle = 'black';
 		ctx.fillText("LET ME SLEEP!" , this.canvas.width/2, this.canvas.height / 4);
@@ -496,7 +496,7 @@ app.main = {
 		ctx.fillRect((this.canvas.width /2) - 100, (this.canvas.height / 4) * 1.5, 200, 50);
 		ctx.strokeRect((this.canvas.width /2) - 100, (this.canvas.height / 4) * 1.5, 200, 50)
 		ctx.fillStyle = 'black';
-		ctx.font = "20pt Open Sans";
+		ctx.font = "20pt Permanent Marker";
 		ctx.fillText("START GAME", this.canvas.width/2, (this.canvas.height / 4) * 1.5 + 30);
 		
 		//DRAW HOW TO PLAY GAME BUTTON
@@ -505,7 +505,7 @@ app.main = {
 		ctx.fillRect((this.canvas.width /2) - 100, (this.canvas.height / 4) * 2, 200, 50);
 		ctx.strokeRect((this.canvas.width /2) - 100, (this.canvas.height / 4) * 2, 200, 50)
 		ctx.fillStyle = 'black';
-		ctx.font = "20pt Open Sans";
+		ctx.font = "20pt Permanent Marker";
 		ctx.fillText("INSTRUCTIONS", this.canvas.width/2, (this.canvas.height / 4) * 2 + 30);
 		
 		//DRAW CREDITS BUTTON
@@ -514,7 +514,7 @@ app.main = {
 		ctx.fillRect((this.canvas.width /2) - 100, (this.canvas.height / 4) * 2.5, 200, 50);
 		ctx.strokeRect((this.canvas.width /2) - 100, (this.canvas.height / 4) * 2.5, 200, 50)
 		ctx.fillStyle = 'black';
-		ctx.font = "20pt Open Sans";
+		ctx.font = "20pt Permanent Marker";
 		ctx.fillText("CREDITS", this.canvas.width/2, (this.canvas.height / 4) * 2.5 + 30);
         
         ctx.restore();
@@ -536,7 +536,7 @@ app.main = {
 		ctx.fillRect((this.canvas.width /2) - 100, (this.canvas.height / 4) * 2.75, 200, 50);
 		ctx.strokeRect((this.canvas.width /2) - 100, (this.canvas.height / 4) * 2.75, 200, 50)
 		ctx.fillStyle = 'black';
-		ctx.font = "20pt Open Sans";
+		ctx.font = "20pt Permanent Marker";
 		ctx.fillText("BACK", this.canvas.width/2, (this.canvas.height / 4) * 2.75 + 30);
 
 		ctx.restore();
@@ -555,13 +555,13 @@ app.main = {
         ctx.textBaseline = "middle";
 
         if (this.canvas.height == 800)
-            ctx.font = "40pt Open Sans";
+            ctx.font = "40pt Permanent Marker";
         else
-            ctx.font = "32pt Open Sans";
+            ctx.font = "32pt Permanent Marker";
         
 		ctx.fillStyle = 'black';
 		ctx.fillText("LET ME SLEEP!" , this.canvas.width/2, this.canvas.height / 4);
-        ctx.font = "12pt Open Sans";
+        ctx.font = "12pt Permanent Marker";
         if (this.canvas.height == 800)
             ctx.fillText("MADE BY:", this.canvas.width/2, (this.canvas.height / 4) + 40);
         else
@@ -570,9 +570,9 @@ app.main = {
         //Change values for name drawing
         ctx.textAlign = "left";
         if (this.canvas.height == 800)
-            ctx.font = "24pt Open Sans";
+            ctx.font = "24pt Permanent Marker";
         else
-            ctx.font = "16pt Open Sans";
+            ctx.font = "16pt Permanent Marker";
         
 		//DRAW KEVIN CREDIT
 		ctx.drawImage(this.slothHead, this.canvas.width / 10, (this.canvas.height / 4) * 1.5, 60, 49);
@@ -589,7 +589,7 @@ app.main = {
 		ctx.fillRect((this.canvas.width /2) - 100, (this.canvas.height / 4) * 2.75, 200, 50);
 		ctx.strokeRect((this.canvas.width /2) - 100, (this.canvas.height / 4) * 2.75, 200, 50)
 		ctx.fillStyle = 'black';
-		ctx.font = "20pt Open Sans";
+		ctx.font = "20pt Permanent Marker";
 		ctx.fillText("BACK", this.canvas.width/2, (this.canvas.height / 4) * 2.75 + 30);
 		
 		ctx.restore();
@@ -613,7 +613,7 @@ app.main = {
         ctx.textBaseline = "middle";
 
         //Draw text
-        ctx.font = "40pt Open Sans";
+        ctx.font = "40pt Permanent Marker";
         ctx.fillStyle = "white";
         ctx.fillText("PAUSED", 0, 0);
         
@@ -627,7 +627,7 @@ app.main = {
         //DRAW SCORE
 		ctx.textAlign = "center";
         ctx.textBaseline = "top";
-		ctx.font = "24pt Open Sans";
+		ctx.font = "24pt Permanent Marker";
 		ctx.fillStyle = "black";
         ctx.fillText("Score: " + this.score, this.canvas.width / 2, 0);
         
@@ -650,16 +650,16 @@ app.main = {
 
 		
         //Draw text
-        ctx.font = "40pt Open Sans";
+        ctx.font = "40pt Permanent Marker";
         ctx.fillStyle = "white";
         ctx.fillText("GAME OVER", 0, 0);
 
 		if(this.newHighScore){
-			ctx.font = "40pt Open Sans";
+			ctx.font = "40pt Permanent Marker";
         	ctx.fillStyle = "white";
         	ctx.fillText("New Highscore", 0, 70);
 			
-			ctx.font = "30pt Open Sans";
+			ctx.font = "30pt Permanent Marker";
 			
 			var intials = [];
 			for(var i =0; i < this.keys.pName.length; i++){
@@ -677,16 +677,16 @@ app.main = {
 		}
 		else{
 			//Draw leaderboard
-			ctx.font = "40pt Open Sans";
+			ctx.font = "40pt Permanent Marker";
         	ctx.fillStyle = "white";
         	ctx.fillText("LeaderBoard", 0, 70);
 			
-			ctx.font = " 20pt Open Sans";
+			ctx.font = " 20pt Permanent Marker";
 			//draw scores
 			for(var p = 0; p < 3; p++){
 				ctx.fillText("Name: " + scores[p].name + " Score: " + scores[p].score, 0, 120 + (40*p));
 			}
-			ctx.font = "12pt Open Sans";
+			ctx.font = "12pt Permanent Marker";
         	ctx.fillText("Click to play again!", 0, 300);
 		}
         
