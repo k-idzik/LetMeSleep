@@ -7,7 +7,6 @@ app.Keys = function(){
 	
 	keys.keydown = [];
 	keys.pName = [];
-	debugger;
 	
 	//Key down event listener
 	window.addEventListener("keydown", function(e){

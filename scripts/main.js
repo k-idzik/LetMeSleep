@@ -26,6 +26,7 @@ app.main = {
     bounceRockImg: undefined,
     bulletImg: undefined,
 	sleepyZ: undefined, //this holds the z sprite for sleepy sloth
+    slingshotImage: undefined,
     
 	//Sloth Lives
 	slothLives: 3,
@@ -199,6 +200,10 @@ app.main = {
 		//Get sleepyZ sprite
 		this.sleepyZ = new Image();
 		this.sleepyZ.src = "art/zSpriteSheet.png";
+        
+        //Slingshot image
+		this.slingshotImage = new Image();
+		this.slingshotImage.src = "art/slingshot.png";
 		
 		this.zSprite = this.sprite({
 			context: this.ctx,
@@ -313,11 +318,12 @@ app.main = {
 				
 			case this.SCREEN.GAME:
 				//GAME DRAW LOOP
-				//Draws the sloth
-        		ctx.drawImage(this.sloth, 0, this.canvas.height - this.slothHeight, this.canvas.width, this.slothHeight);
         		
         		this.drawSlingShot(ctx); //Draw the slingshot
         		
+                //Draws the sloth
+        		ctx.drawImage(this.sloth, 0, this.canvas.height - this.slothHeight, this.canvas.width, this.slothHeight);
+                
         		for(var i =0; i < this.rocks.length; i++) {
         		    var r = this.rocks[i];
 		
@@ -417,7 +423,7 @@ app.main = {
 	startGame: function() {	
 		//Set the clickpoint coordinates
         this.clickpoint.defaultX = this.clickpoint.x = this.canvas.width / 2;
-        this.clickpoint.defaultY = this.clickpoint.y = this.canvas.height - 220;      
+        this.clickpoint.defaultY = this.clickpoint.y = this.canvas.height - this.slothHeight - 90;      
         
         //Hook up events
         this.canvas.onmouseover = undefined;
@@ -451,7 +457,7 @@ app.main = {
 		
 		//Set the clickpoint coordinates
         this.clickpoint.defaultX = this.clickpoint.x = this.canvas.width / 2;
-        this.clickpoint.defaultY = this.clickpoint.y = this.canvas.height - 220;      
+        this.clickpoint.defaultY = this.clickpoint.y = this.canvas.height - this.slothHeight - 90;      
         
         //Hook up events
         this.canvas.onmousedown = this.backClicked.bind(this);
@@ -463,7 +469,7 @@ app.main = {
 	switchCredits: function(){
 		//Set the clickpoint coordinates
         this.clickpoint.defaultX = this.clickpoint.x = this.canvas.width / 2;
-        this.clickpoint.defaultY = this.clickpoint.y = this.canvas.height - 220;      
+        this.clickpoint.defaultY = this.clickpoint.y = this.canvas.height - this.slothHeight - 90;      
         
         //Hook up events
         this.canvas.onmousedown = this.backClicked.bind(this);
@@ -702,23 +708,15 @@ app.main = {
         ctx.lineCap = "round";
         
         //Draw the slingshot
-        ctx.lineWidth = 10;
-        ctx.strokeStyle = "#8B4513";
-        ctx.beginPath();
-        ctx.moveTo(this.canvas.width / 2, this.canvas.height - 100);
-        ctx.lineTo(this.canvas.width / 2, this.canvas.height - 170);
-        ctx.lineTo(this.canvas.width / 2.6, this.canvas.height - 220);
-        ctx.moveTo(this.canvas.width / 2, this.canvas.height - 170);
-        ctx.lineTo(this.canvas.width - (this.canvas.width / 2.6), this.canvas.height - 220);
-        ctx.stroke();
+        ctx.drawImage(this.slingshotImage, (this.canvas.width / 2) - 45, this.canvas.height - this.slothHeight - 100, 90, 150);
         
         //Draw the slingshot's curved component
         ctx.lineWidth = 5;
         ctx.strokeStyle = "grey";
         ctx.beginPath();
-        ctx.moveTo(this.canvas.width / 2.6, this.canvas.height - 220);
+        ctx.moveTo(this.canvas.width / 2.6, this.canvas.height - this.slothHeight - 90);
         ctx.lineTo(this.clickpoint.x, this.clickpoint.y);
-        ctx.lineTo(this.canvas.width - (this.canvas.width / 2.6), this.canvas.height - 220);
+        ctx.lineTo(this.canvas.width - (this.canvas.width / 2.6), this.canvas.height - this.slothHeight - 90);
         ctx.stroke();
         
         //Draw the slingshot's click point
