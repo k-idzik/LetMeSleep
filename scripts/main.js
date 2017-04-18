@@ -27,7 +27,8 @@ app.main = {
     bulletImg: undefined,
 	sleepyZ: undefined, //this holds the z sprite for sleepy sloth
     slingshotImage: undefined,
-    
+    instructImage: undefined,
+	
 	//Sloth Lives
 	slothLives: 3,
 	
@@ -204,6 +205,10 @@ app.main = {
         //Slingshot image
 		this.slingshotImage = new Image();
 		this.slingshotImage.src = "art/slingshot.png";
+		
+		//instruct image
+		this.instructImage = new Image();
+		this.instructImage.src = "art/instructions.png";
 		
 		this.zSprite = this.sprite({
 			context: this.ctx,
@@ -537,6 +542,7 @@ app.main = {
 		ctx.drawImage(this.sloth, 0, 0, this.canvas.width, this.slothHeight);
         ctx.drawImage(this.sloth, 0, this.canvas.height - this.slothHeight, this.canvas.width, this.slothHeight); 
 		
+		ctx.drawImage(this.instructImage, 0 , 140, this.canvas.width, this.canvas.width);
 		//DRAW Back BUTTON
         if (this.canvas.height == 800)
             ctx.font = "20pt Permanent Marker";
