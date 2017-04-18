@@ -143,13 +143,8 @@ app.main = {
 	
 	//PLAyer object
 	PLAYER: function(){
-		var play = {};
-		
-		play.name = "AAA";
-		play.score = 0;
-		
-		Object.seal(play);
-		return play;
+		this.name = "AAA";
+		this.score = 0;
 	},
 	
 	highScores: [],
@@ -222,7 +217,7 @@ app.main = {
         
 		//populate highScore array
 		for(var i = 0; i < 3; i++){
-			this.highScores.push(this.PLAYER());
+			this.highScores.push(new this.PLAYER());
 		}
         this.update(); //Start the animation loop
     },
@@ -1082,9 +1077,9 @@ app.main = {
 	
 	//Gets the top 3 scores for the game
 	getHighScores: function(){
-		var hs1 = this.PLAYER();
-		var hs2 = this.PLAYER(); 
-		var hs3 = this.PLAYER();
+		var hs1 = new this.PLAYER();
+		var hs2 = new this.PLAYER(); 
+		var hs3 = new this.PLAYER();
 		
 		for(var i =0; i < this.highScores.length; i++){
 			if(this.highScores[i].score > hs1.score){
