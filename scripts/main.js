@@ -340,7 +340,7 @@ app.main = {
                 if (this.particleEmitter != undefined && this.particleEmitter.activated)
                     this.particleEmitter.update(this.ctx);
                 
-				this.zSprite.render(this.canvas.width/2, this.canvas.height-125, 50, 50, this);
+				this.zSprite.render(this.canvas.width/2, this.canvas.height - (this.slothHeight * 1.2), 50, 50, this);
 				
 				//DRAW HUD
 				this.drawHUD(ctx);
