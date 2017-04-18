@@ -340,7 +340,7 @@ app.main = {
                 if (this.particleEmitter != undefined && this.particleEmitter.activated)
                     this.particleEmitter.update(this.ctx);
                 
-				this.zSprite.render(this.canvas.width/2, this.canvas.height - (this.slothHeight * 1.2), 50, 50, this);
+				this.zSprite.render(this.canvas.width/2, this.canvas.height - (this.slothHeight * 1.15), 50, 50, this);
 				
 				//DRAW HUD
 				this.drawHUD(ctx);
@@ -491,18 +491,23 @@ app.main = {
         if (this.canvas.height == 800)
             ctx.font = "40pt Permanent Marker";
         else
-            ctx.font = "32pt Permanent Marker";
+            ctx.font = "30pt Permanent Marker";
         
 		ctx.fillStyle = 'black';
 		ctx.fillText("LET ME SLEEP!" , this.canvas.width/2, this.canvas.height / 4);
 		
+        //Buttons
+        if (this.canvas.height == 800)
+            ctx.font = "20pt Permanent Marker";
+        else
+            ctx.font = "18pt Permanent Marker";
+        
 		//DRAW START GAME BUTTON
 		ctx.fillStyle = "#C2976B";
 		ctx.strokeStyle = "brown";
 		ctx.fillRect((this.canvas.width /2) - 100, (this.canvas.height / 4) * 1.5, 200, 50);
 		ctx.strokeRect((this.canvas.width /2) - 100, (this.canvas.height / 4) * 1.5, 200, 50)
-		ctx.fillStyle = 'black';
-		ctx.font = "20pt Permanent Marker";
+		ctx.fillStyle = 'black';        
 		ctx.fillText("START GAME", this.canvas.width/2, (this.canvas.height / 4) * 1.5 + 30);
 		
 		//DRAW HOW TO PLAY GAME BUTTON
@@ -511,7 +516,6 @@ app.main = {
 		ctx.fillRect((this.canvas.width /2) - 100, (this.canvas.height / 4) * 2, 200, 50);
 		ctx.strokeRect((this.canvas.width /2) - 100, (this.canvas.height / 4) * 2, 200, 50)
 		ctx.fillStyle = 'black';
-		ctx.font = "20pt Permanent Marker";
 		ctx.fillText("INSTRUCTIONS", this.canvas.width/2, (this.canvas.height / 4) * 2 + 30);
 		
 		//DRAW CREDITS BUTTON
@@ -520,7 +524,6 @@ app.main = {
 		ctx.fillRect((this.canvas.width /2) - 100, (this.canvas.height / 4) * 2.5, 200, 50);
 		ctx.strokeRect((this.canvas.width /2) - 100, (this.canvas.height / 4) * 2.5, 200, 50)
 		ctx.fillStyle = 'black';
-		ctx.font = "20pt Permanent Marker";
 		ctx.fillText("CREDITS", this.canvas.width/2, (this.canvas.height / 4) * 2.5 + 30);
         
         ctx.restore();
@@ -535,6 +538,11 @@ app.main = {
         ctx.drawImage(this.sloth, 0, this.canvas.height - this.slothHeight, this.canvas.width, this.slothHeight); 
 		
 		//DRAW Back BUTTON
+        if (this.canvas.height == 800)
+            ctx.font = "20pt Permanent Marker";
+        else
+            ctx.font = "18pt Permanent Marker";
+        
 		ctx.textAlign = "center";
         ctx.textBaseline = "middle";
 		ctx.fillStyle = "#C2976B";
@@ -542,7 +550,6 @@ app.main = {
 		ctx.fillRect((this.canvas.width /2) - 100, (this.canvas.height / 4) * 2.75, 200, 50);
 		ctx.strokeRect((this.canvas.width /2) - 100, (this.canvas.height / 4) * 2.75, 200, 50)
 		ctx.fillStyle = 'black';
-		ctx.font = "20pt Permanent Marker";
 		ctx.fillText("BACK", this.canvas.width/2, (this.canvas.height / 4) * 2.75 + 30);
 
 		ctx.restore();
@@ -563,7 +570,7 @@ app.main = {
         if (this.canvas.height == 800)
             ctx.font = "40pt Permanent Marker";
         else
-            ctx.font = "32pt Permanent Marker";
+            ctx.font = "30pt Permanent Marker";
         
 		ctx.fillStyle = 'black';
 		ctx.fillText("LET ME SLEEP!" , this.canvas.width/2, this.canvas.height / 4);
@@ -589,13 +596,17 @@ app.main = {
 		ctx.fillText("JOSH MALMQUIST", (this.canvas.width / 10) + 80, (this.canvas.height / 4) * 2 + 30);
 
         //Back button
+        if (this.canvas.height == 800)
+            ctx.font = "20pt Permanent Marker";
+        else
+            ctx.font = "18pt Permanent Marker";
+        
         ctx.textAlign = "center";
         ctx.fillStyle = "#C2976B";
 		ctx.strokeStyle = "brown";
 		ctx.fillRect((this.canvas.width /2) - 100, (this.canvas.height / 4) * 2.75, 200, 50);
 		ctx.strokeRect((this.canvas.width /2) - 100, (this.canvas.height / 4) * 2.75, 200, 50)
 		ctx.fillStyle = 'black';
-		ctx.font = "20pt Permanent Marker";
 		ctx.fillText("BACK", this.canvas.width/2, (this.canvas.height / 4) * 2.75 + 30);
 		
 		ctx.restore();
@@ -653,19 +664,29 @@ app.main = {
         ctx.translate(this.canvas.width / 2, this.canvas.height / 4);
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
-
-		
+	
         //Draw text
-        ctx.font = "40pt Permanent Marker";
+        if (this.canvas.height == 800)
+            ctx.font = "40pt Permanent Marker";
+        else
+            ctx.font = "30pt Permanent Marker";
+        
         ctx.fillStyle = "white";
         ctx.fillText("GAME OVER", 0, 0);
 
 		if(this.newHighScore){
-			ctx.font = "40pt Permanent Marker";
+            if (this.canvas.height == 800)
+                ctx.font = "40pt Permanent Marker";
+            else
+                ctx.font = "30pt Permanent Marker";
+            
         	ctx.fillStyle = "white";
         	ctx.fillText("New Highscore", 0, 70);
 			
-			ctx.font = "30pt Permanent Marker";
+            if (this.canvas.height == 800)
+                ctx.font = "30pt Permanent Marker";
+            else
+                ctx.font = "20pt Permanent Marker";
 			
 			var intials = [];
 			for(var i =0; i < this.keys.pName.length; i++){
@@ -678,16 +699,21 @@ app.main = {
 			
 			ctx.fillText("Name: " + intials[0] + " " + intials[1] + " " + intials[2], 0, 130);
 			
-			ctx.fillText("Press Shift&Enter", 0, 200);
+			ctx.fillText("Press Shift & Enter", 0, 200);
 			ctx.fillText(" to confirm name" , 0, 240);
 		}
 		else{
 			//Draw leaderboard
-			ctx.font = "40pt Permanent Marker";
+            if (this.canvas.height == 800)
+                ctx.font = "40pt Permanent Marker";
+            else
+                ctx.font = "30pt Permanent Marker";
+            
         	ctx.fillStyle = "white";
         	ctx.fillText("LeaderBoard", 0, 70);
 			
 			ctx.font = " 20pt Permanent Marker";
+            
 			//draw scores
 			for(var p = 0; p < 3; p++){
 				ctx.fillText("Name: " + scores[p].name + " Score: " + scores[p].score, 0, 120 + (40*p));
@@ -733,18 +759,6 @@ app.main = {
         var Rock_Draw = function(appRef) {
             //draw rock to canvas
             appRef.ctx.drawImage(appRef.defaultRockImg, this.x - 15, this.y - 15, 30, 30);
-//            ctx.save();
-//
-//            ctx.strokeStyle = "black";
-//            ctx.fillStyle = "gray";
-//
-//            ctx.beginPath();
-//            ctx.arc(this.x, this.y, this.radius, 0, Math.PI*2);
-//            ctx.stroke();
-//            ctx.fill();
-//            ctx.closePath();
-//
-//            ctx.restore();
         };
 
         var Rock_Update = function(appRef) {
