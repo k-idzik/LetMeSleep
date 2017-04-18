@@ -28,7 +28,7 @@ app.Keys = function(){
 		if(app.main.newHighScore){
 			if(keys.keydown[13] && keys.keydown[16]){ //enter pressed
 				//add new player to the high scores array
-				var player = app.main.PLAYER();
+				var player = new app.main.PLAYER();
 				player.name = "";
 				
 				for(var i = 0; i < keys.pName.length; i++){
