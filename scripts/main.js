@@ -912,7 +912,7 @@ app.main = {
     },
 	
     //MAKE BULLET
-    makeBullet: function(x, y, direction, speed) {
+    makeBullet: function(x, y, direction, speed, bType) {
         var BULLET_UPDATE = function(appRef) {
             direction.normalize();
             
@@ -936,7 +936,15 @@ app.main = {
         var BULLET_DRAW = function(ctx) {
             ctx.save();
             
-            ctx.fillStyle = 'white';
+            if (bType == "normal")
+                ctx.fillStyle = 'white';
+            else if (bType == "jaug")
+                ctx.fillStyle = 'red';
+            else if (bType == "bounce")
+                ctx.fillStyle = 'green';
+            else if (bType == "triple")
+                ctx.fillStyle = 'lightgrey';
+            
             ctx.strokeStyle = 'black';
             
             ctx.beginPath();
@@ -963,16 +971,21 @@ app.main = {
                     appRef.particleEmitter = new appRef.Particles();
                     appRef.particleEmitter.initialize(appRef.rocks[i].x, appRef.rocks[i].y);
                     
+                    var previousType = undefined;
                     //Assign the bullet powerup type
-                    if (appRef.bulletType == "normal")
+                    if (appRef.bulletType == "normal" && appRef.rocks[i].rockType != "normal") {
+                        if (appRef.rocks[i].rockType == "jaug")
+                            previousType = "normal";
+                        
                         appRef.bulletType = appRef.rocks[i].rockType;
-                    
+                    }
+                        
                     //remove from rocks array
                     appRef.rocks.splice(i, 1);
                     
                     for(var j =0; j < appRef.bullets.length; j++) {
                         if(appRef.bullets[j] == this) {
-                            if (appRef.bulletType != "jaug")
+                            if (appRef.bulletType != "jaug" && previousType != "normal")
                                 appRef.bullets.splice(j, 1);
                             delete this;
                             break;
@@ -1002,7 +1015,6 @@ app.main = {
         
     },
    
-	
 	//MAIN MENU CLICKED FUNCTION
 	mainMenuClicked: function(e) {
 		var mouse = getMouse(e);
@@ -1125,13 +1137,13 @@ app.main = {
             //Fire a bullet if the slingshot has moved far enough
             if (this.clickpoint.previousMouseClicked && defaultPoint.distance(movedPoint) > 5) {
                 this.sound.playEffect(1);
-                this.makeBullet(this.clickpoint.x, this.clickpoint.y, Victor(movedPoint.x - defaultPoint.x, movedPoint.y - defaultPoint.y), defaultPoint.distance(movedPoint) / 10); //Make a bullet
+                this.makeBullet(this.clickpoint.x, this.clickpoint.y, Victor(movedPoint.x - defaultPoint.x, movedPoint.y - defaultPoint.y), defaultPoint.distance(movedPoint) / 10, this.bulletType); //Make a bullet
                 this.clickpoint.previousMouseClicked = false;
             }
         }
    	},
 	
-	calculateDeltaTime: function(){
+	calculateDeltaTime: function() {
 		var now,fps;
 		now = performance.now(); 
 		fps = 1000 / (now - this.lastTime);
@@ -1141,7 +1153,7 @@ app.main = {
 	},
 	
 	//Gets the top 3 scores for the game
-	getHighScores: function(){
+	getHighScores: function() {
 		var hs1 = new this.PLAYER();
 		var hs2 = new this.PLAYER(); 
 		var hs3 = new this.PLAYER();
