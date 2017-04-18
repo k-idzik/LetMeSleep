@@ -543,7 +543,8 @@ app.main = {
 		ctx.drawImage(this.sloth, 0, 0, this.canvas.width, this.slothHeight);
         ctx.drawImage(this.sloth, 0, this.canvas.height - this.slothHeight, this.canvas.width, this.slothHeight); 
 		
-		ctx.drawImage(this.instructImage, 0 , 140, this.canvas.width, this.canvas.width);
+		ctx.drawImage(this.instructImage, 0, this.slothHeight - 10, this.canvas.width, this.canvas.width);
+        
 		//DRAW Back BUTTON
         if (this.canvas.height == 800)
             ctx.font = "20pt Permanent Marker";
