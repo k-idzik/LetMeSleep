@@ -714,9 +714,9 @@ app.main = {
         ctx.lineWidth = 5;
         ctx.strokeStyle = "grey";
         ctx.beginPath();
-        ctx.moveTo(this.canvas.width / 2.6, this.canvas.height - this.slothHeight - 90);
+        ctx.moveTo((this.canvas.width / 2) - 35, this.canvas.height - this.slothHeight - 90);
         ctx.lineTo(this.clickpoint.x, this.clickpoint.y);
-        ctx.lineTo(this.canvas.width - (this.canvas.width / 2.6), this.canvas.height - this.slothHeight - 90);
+        ctx.lineTo(this.canvas.width - ((this.canvas.width / 2) - 35), this.canvas.height - this.slothHeight - 90);
         ctx.stroke();
         
         //Draw the slingshot's click point
