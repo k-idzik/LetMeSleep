@@ -59,11 +59,8 @@ app.main = {
     rocks: [],
     ROCK: Object.freeze({
         RADIUS: 15,
-        //MIN_RADIUS: 2,
-        //MAX_RADIUS: 15,
         SPEED: 1,
         VALUE: 5,
-        //ROCK_ART: this.defaultRockImg
     }),
     rockCooldown: 100,
     rockTimer: 0,
@@ -71,11 +68,13 @@ app.main = {
     
     //Bullets State
     bullets: [],
+    bulletType: "normal",
+	powerUpTime: 300,
+	powerUpTimer: 0,
     BULLET: Object.freeze({
         RADIUS: 10,
         SPEED: 3,
         MAX_BULLETS: 3, //max bullets allowed on scree
-        BULLET_ART: this.bulletImg,
     }),
     
     //Particles
@@ -243,6 +242,13 @@ app.main = {
 				
 			case this.SCREEN.GAME:
 				//GAME UPDATE LOOP
+				if (this.bulletType != "normal") {
+					this.powerUpTimer++;
+					
+					if(this.powerUpTimer >= this.powerUpTime)
+						this.bulletType = "normal";
+				}
+				
 				this.makeRocks();
 	        	
 	        	for(var i =0; i < this.rocks.length; i++) {
@@ -537,7 +543,8 @@ app.main = {
 		ctx.drawImage(this.sloth, 0, 0, this.canvas.width, this.slothHeight);
         ctx.drawImage(this.sloth, 0, this.canvas.height - this.slothHeight, this.canvas.width, this.slothHeight); 
 		
-		ctx.drawImage(this.instructImage, 0 , 140, this.canvas.width, this.canvas.width);
+		ctx.drawImage(this.instructImage, 0, this.slothHeight - 10, this.canvas.width, this.canvas.width);
+        
 		//DRAW Back BUTTON
         if (this.canvas.height == 800)
             ctx.font = "20pt Permanent Marker";
@@ -703,7 +710,7 @@ app.main = {
 			ctx.fillText("Press Shift & Enter", 0, 200);
 			ctx.fillText(" to confirm name" , 0, 240);
 		}
-		else{
+		else {
 			//Draw leaderboard
             if (this.canvas.height == 800)
                 ctx.font = "40pt Permanent Marker";
@@ -722,7 +729,6 @@ app.main = {
 			ctx.font = "12pt Permanent Marker";
         	ctx.fillText("Click to play again!", 0, 300);
 		}
-        
         
         ctx.restore(); //Restore the canvas state to what it was before drawing the pause screen
 	},
@@ -757,11 +763,6 @@ app.main = {
     
     ///Makes rocks
     makeRocks: function() {
-        var Rock_Draw = function(appRef) {
-            //draw rock to canvas
-            appRef.ctx.drawImage(appRef.defaultRockImg, this.x - 15, this.y - 15, 30, 30);
-        };
-
         var Rock_Update = function(appRef) {
             //make rock fall from the sky
             this.y += this.speed;
@@ -774,6 +775,7 @@ app.main = {
                         appRef.rocks.splice(i, 1);
 						appRef.slothLives--;
                         appRef.zSprite.numOfFrames--;
+                        appRef.bulletType = "normal";
                         break;
                     }
                 }
@@ -788,10 +790,53 @@ app.main = {
 
             r.radius = this.ROCK.RADIUS;
 
-            r.speed = this.ROCK.SPEED;
+            //Give the rock some variance in speed
+            if (this.round >= 15)
+                var weightRandom = Math.floor(Math.random() * 100); //0-99
+            else if (this.round >= 10)
+                var weightRandom = Math.floor(Math.random() * 95); //0-94
+            else if (this.round >= 5)
+                var weightRandom = Math.floor(Math.random() * 85); //0-84
+            else
+                var weightRandom = Math.floor(Math.random() * 65); //0-64
+            
+            if (weightRandom >= 0 && weightRandom < 65)
+                r.speed = this.ROCK.SPEED;
+            else if (weightRandom >= 65 && weightRandom < 85)
+                r.speed = this.ROCK.SPEED + 1;
+            else if (weightRandom >= 85 && weightRandom < 95)
+                r.speed = this.ROCK.SPEED + 1.5;
+            else
+                r.speed = this.ROCK.SPEED + 2.5;
+            
             r.value = this.ROCK.VALUE;
-
-            r.draw = Rock_Draw;
+            r.rockType = undefined;
+            
+            //Powerups
+            if (this.round >= 3 && this.bulletType == "normal") //Only do powerups when the player has none
+                var weightRandom = Math.floor(Math.random() * 100); //0-99
+            else
+                var weightRandom = Math.floor(Math.random() * 84); //0-84
+            
+            r.draw = function(appRef) {
+                if (weightRandom >= 0 && weightRandom < 84) {
+                    r.rockType = "normal";
+                    appRef.ctx.drawImage(appRef.defaultRockImg, this.x - 15, this.y - 15, 30, 30); //Normal rock
+                }
+                else if (weightRandom >= 84 && weightRandom < 89) {
+                    r.rockType = "jaug";
+                    appRef.ctx.drawImage(appRef.jaugRockImg, this.x - 15, this.y - 15, 30, 30); //Jaug rock
+                }
+                else if (weightRandom >= 89 && weightRandom < 94) {
+                    r.rockType = "triple";
+                    appRef.ctx.drawImage(appRef.tripleRockImg, this.x - 15, this.y - 15, 30, 30); //Triple rock
+                }
+                else {
+                    r.rockType = "bounce";
+                    appRef.ctx.drawImage(appRef.bounceRockImg, this.x - 15, this.y - 15, 30, 30); //Bounce rock
+                }
+            };
+            
             r.update = Rock_Update;
 
             Object.seal(r);
@@ -828,8 +873,33 @@ app.main = {
                 r.speed = this.ROCK.SPEED + 2.5;
             
             r.value = this.ROCK.VALUE;
+            r.rockType = undefined;
 
-            r.draw = Rock_Draw;
+            //Powerups
+            if (this.round >= 3 && this.bulletType == "normal") //Only do powerups when the player has none
+                var weightRandom = Math.floor(Math.random() * 100); //0-99
+            else
+                var weightRandom = Math.floor(Math.random() * 84); //0-84
+            
+            r.draw = function(appRef) {
+                if (weightRandom >= 0 && weightRandom < 84) {
+                    r.rockType = "normal";
+                    appRef.ctx.drawImage(appRef.defaultRockImg, this.x - 15, this.y - 15, 30, 30); //Normal rock
+                }
+                else if (weightRandom >= 84 && weightRandom < 89) {
+                    r.rockType = "jaug";
+                    appRef.ctx.drawImage(appRef.jaugRockImg, this.x - 15, this.y - 15, 30, 30); //Jaug rock
+                }
+                else if (weightRandom >= 89 && weightRandom < 94) {
+                    r.rockType = "triple";
+                    appRef.ctx.drawImage(appRef.tripleRockImg, this.x - 15, this.y - 15, 30, 30); //Triple rock
+                }
+                else {
+                    r.rockType = "bounce";
+                    appRef.ctx.drawImage(appRef.bounceRockImg, this.x - 15, this.y - 15, 30, 30); //Bounce rock
+                }
+            };
+            
             r.update = Rock_Update;
 
             Object.seal(r);
@@ -852,23 +922,35 @@ app.main = {
     },
 	
     //MAKE BULLET
-    makeBullet: function(x, y, direction, speed) {
+    makeBullet: function(x, y, direction, speed, bType) {
         var BULLET_UPDATE = function(appRef) {
             direction.normalize();
             
             //Use the speed passed in through the method
             //More speed references may need to be updated later
-            this.x -= direction.x * speed;
+			if(this.hitCount != 0) {
+				this.x += direction.x*speed;
+			}
+			else {
+            	this.x -= direction.x * speed;
+			}
             this.y -= direction.y * speed;
             
             this.CollisionDetection(appRef);
             
             if(this.x < 0 || this.x > appRef.canvas.width || this.y < 0 || this.y > appRef.canvas.height){
                 for(var i =0; i < appRef.bullets.length; i++) {
-                    if(appRef.bullets[i] == this){
+                    if(appRef.bullets[i] == this && appRef.bulletType != "bounce"){
                         appRef.bullets.splice(i, 1);
                         break;
                     }
+					else if(appRef.bullets[i] == this && appRef.bullets[i].hitCount != 0){
+						appRef.bullets.splice(i, 1);
+                        break;
+					}
+					else if(appRef.bullets[i] == this){
+						appRef.bullets[i].hitCount++;
+					}
                 }
             }
         };
@@ -876,7 +958,15 @@ app.main = {
         var BULLET_DRAW = function(ctx) {
             ctx.save();
             
-            ctx.fillStyle = 'white';
+            if (bType == "normal")
+                ctx.fillStyle = 'white';
+            else if (bType == "jaug")
+                ctx.fillStyle = 'red';
+            else if (bType == "bounce")
+                ctx.fillStyle = 'green';
+            else if (bType == "triple")
+                ctx.fillStyle = 'lightgrey';
+            
             ctx.strokeStyle = 'black';
             
             ctx.beginPath();
@@ -903,12 +993,26 @@ app.main = {
                     appRef.particleEmitter = new appRef.Particles();
                     appRef.particleEmitter.initialize(appRef.rocks[i].x, appRef.rocks[i].y);
                     
+                    var previousType = undefined;
+                    //Assign the bullet powerup type
+                    if (appRef.bulletType == "normal" && appRef.rocks[i].rockType != "normal") {
+						appRef.powerUpTimer = 0; //Reset the timer
+						
+                        if (appRef.rocks[i].rockType == "jaug")
+                            previousType = "normal";
+                        
+                        appRef.bulletType = appRef.rocks[i].rockType;
+                    }
+                    
+					
+					
                     //remove from rocks array
                     appRef.rocks.splice(i, 1);
                     
                     for(var j =0; j < appRef.bullets.length; j++) {
-                        if(appRef.bullets[j] == this) {                            
-                            appRef.bullets.splice(j, 1);
+                        if(appRef.bullets[j] == this) {
+                            if (appRef.bulletType != "jaug" && previousType != "normal")
+                                appRef.bullets.splice(j, 1);
                             delete this;
                             break;
                         }
@@ -930,14 +1034,14 @@ app.main = {
             bullet.draw = BULLET_DRAW;
             bullet.update = BULLET_UPDATE;
             bullet.CollisionDetection = Bullet_DetectCollisions;
-            
+            bullet.hitCount = 0;
+			
             Object.seal(bullet);
             this.bullets.push(bullet);
         }
         
     },
    
-	
 	//MAIN MENU CLICKED FUNCTION
 	mainMenuClicked: function(e) {
 		var mouse = getMouse(e);
@@ -1060,13 +1164,20 @@ app.main = {
             //Fire a bullet if the slingshot has moved far enough
             if (this.clickpoint.previousMouseClicked && defaultPoint.distance(movedPoint) > 5) {
                 this.sound.playEffect(1);
-                this.makeBullet(this.clickpoint.x, this.clickpoint.y, Victor(movedPoint.x - defaultPoint.x, movedPoint.y - defaultPoint.y), defaultPoint.distance(movedPoint) / 10); //Make a bullet
-                this.clickpoint.previousMouseClicked = false;
+				
+				if (this.bulletType != "triple")
+                	this.makeBullet(this.clickpoint.x, this.clickpoint.y, Victor(movedPoint.x - defaultPoint.x, movedPoint.y - defaultPoint.y), defaultPoint.distance(movedPoint) / 10, this.bulletType); //Make a bullet
+                else {
+					this.makeBullet(this.clickpoint.x, this.clickpoint.y, Victor(movedPoint.x - defaultPoint.x, movedPoint.y - defaultPoint.y), defaultPoint.distance(movedPoint) / 10, this.bulletType); //Make a bullet
+					this.makeBullet(this.clickpoint.x, this.clickpoint.y, Victor(movedPoint.x - defaultPoint.x - 25, movedPoint.y - defaultPoint.y), defaultPoint.distance(movedPoint) / 10, this.bulletType); //Make a bullet
+					this.makeBullet(this.clickpoint.x, this.clickpoint.y, Victor(movedPoint.x - defaultPoint.x + 25, movedPoint.y - defaultPoint.y), defaultPoint.distance(movedPoint) / 10, this.bulletType); //Make a bullet
+				}
+				this.clickpoint.previousMouseClicked = false;
             }
         }
    	},
 	
-	calculateDeltaTime: function(){
+	calculateDeltaTime: function() {
 		var now,fps;
 		now = performance.now(); 
 		fps = 1000 / (now - this.lastTime);
@@ -1076,7 +1187,7 @@ app.main = {
 	},
 	
 	//Gets the top 3 scores for the game
-	getHighScores: function(){
+	getHighScores: function() {
 		var hs1 = new this.PLAYER();
 		var hs2 = new this.PLAYER(); 
 		var hs3 = new this.PLAYER();

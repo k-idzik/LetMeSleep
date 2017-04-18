@@ -10,20 +10,16 @@ app.Keys = function(){
 	
 	//Key down event listener
 	window.addEventListener("keydown", function(e){
-		
-		console.log("Key Down: " + e.keyCode);
 		keys.keydown[e.keyCode] = true;
 	});
 	
 	//key up event listener
 	window.addEventListener("keyup", function(e){
-		console.log("KeyUp: " + e.keyCode);
 		keys.keydown[e.keyCode] = false;
 	});
 	
 	//Gamover Keyboard down func
 	function gameOverKeyDown(e){
-		console.log("Key Down: " + e.keyCode);
 		keys.keydown[e.keyCode] = true;
 		if(app.main.newHighScore){
 			if(keys.keydown[13] && keys.keydown[16]){ //enter pressed
