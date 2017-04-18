@@ -69,6 +69,8 @@ app.main = {
     //Bullets State
     bullets: [],
     bulletType: "normal",
+	powerUpTime: 300,
+	powerUpTimer: 0,
     BULLET: Object.freeze({
         RADIUS: 10,
         SPEED: 3,
@@ -240,6 +242,13 @@ app.main = {
 				
 			case this.SCREEN.GAME:
 				//GAME UPDATE LOOP
+				if (this.bulletType != "normal") {
+					this.powerUpTimer++;
+					
+					if(this.powerUpTimer >= this.powerUpTime)
+						this.bulletType = "normal";
+				}
+				
 				this.makeRocks();
 	        	
 	        	for(var i =0; i < this.rocks.length; i++) {
@@ -918,17 +927,29 @@ app.main = {
             
             //Use the speed passed in through the method
             //More speed references may need to be updated later
-            this.x -= direction.x * speed;
+			if(this.hitCount != 0) {
+				this.x += direction.x*speed;
+			}
+			else {
+            	this.x -= direction.x * speed;
+			}
             this.y -= direction.y * speed;
             
             this.CollisionDetection(appRef);
             
             if(this.x < 0 || this.x > appRef.canvas.width || this.y < 0 || this.y > appRef.canvas.height){
                 for(var i =0; i < appRef.bullets.length; i++) {
-                    if(appRef.bullets[i] == this){
+                    if(appRef.bullets[i] == this && appRef.bulletType != "bounce"){
                         appRef.bullets.splice(i, 1);
                         break;
                     }
+					else if(appRef.bullets[i] == this && appRef.bullets[i].hitCount != 0){
+						appRef.bullets.splice(i, 1);
+                        break;
+					}
+					else if(appRef.bullets[i] == this){
+						appRef.bullets[i].hitCount++;
+					}
                 }
             }
         };
@@ -974,12 +995,16 @@ app.main = {
                     var previousType = undefined;
                     //Assign the bullet powerup type
                     if (appRef.bulletType == "normal" && appRef.rocks[i].rockType != "normal") {
+						appRef.powerUpTimer = 0; //Reset the timer
+						
                         if (appRef.rocks[i].rockType == "jaug")
                             previousType = "normal";
                         
                         appRef.bulletType = appRef.rocks[i].rockType;
                     }
-                        
+                    
+					
+					
                     //remove from rocks array
                     appRef.rocks.splice(i, 1);
                     
@@ -1008,7 +1033,8 @@ app.main = {
             bullet.draw = BULLET_DRAW;
             bullet.update = BULLET_UPDATE;
             bullet.CollisionDetection = Bullet_DetectCollisions;
-            
+            bullet.hitCount = 0;
+			
             Object.seal(bullet);
             this.bullets.push(bullet);
         }
@@ -1137,8 +1163,15 @@ app.main = {
             //Fire a bullet if the slingshot has moved far enough
             if (this.clickpoint.previousMouseClicked && defaultPoint.distance(movedPoint) > 5) {
                 this.sound.playEffect(1);
-                this.makeBullet(this.clickpoint.x, this.clickpoint.y, Victor(movedPoint.x - defaultPoint.x, movedPoint.y - defaultPoint.y), defaultPoint.distance(movedPoint) / 10, this.bulletType); //Make a bullet
-                this.clickpoint.previousMouseClicked = false;
+				
+				if (this.bulletType != "triple")
+                	this.makeBullet(this.clickpoint.x, this.clickpoint.y, Victor(movedPoint.x - defaultPoint.x, movedPoint.y - defaultPoint.y), defaultPoint.distance(movedPoint) / 10, this.bulletType); //Make a bullet
+                else {
+					this.makeBullet(this.clickpoint.x, this.clickpoint.y, Victor(movedPoint.x - defaultPoint.x, movedPoint.y - defaultPoint.y), defaultPoint.distance(movedPoint) / 10, this.bulletType); //Make a bullet
+					this.makeBullet(this.clickpoint.x, this.clickpoint.y, Victor(movedPoint.x - defaultPoint.x - 25, movedPoint.y - defaultPoint.y), defaultPoint.distance(movedPoint) / 10, this.bulletType); //Make a bullet
+					this.makeBullet(this.clickpoint.x, this.clickpoint.y, Victor(movedPoint.x - defaultPoint.x + 25, movedPoint.y - defaultPoint.y), defaultPoint.distance(movedPoint) / 10, this.bulletType); //Make a bullet
+				}
+				this.clickpoint.previousMouseClicked = false;
             }
         }
    	},
